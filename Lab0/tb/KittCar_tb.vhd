@@ -41,7 +41,7 @@ architecture Behavioral of KittCar_tb is
 
     -- Constants For Test Bench (TB)
     constant    CLK_PERIOD 	: time := 10 ns;
-    -- constant    RESET_WND 	: time := 100 ns;
+    constant    RESET_WND 	: time := 100 ns;
     -- constant    SIM_TIME 	: time := 1000 ns;
 
     -- Constants For DUT
@@ -83,6 +83,18 @@ begin
 
     -- TB Clk Generation
     clk <= not clk after CLK_PERIOD/2;
+
+    -- TB Reset Generation
+    reset_inst : process
+    begin
+    
+        reset <= '1';
+        wait for RESET_WND;
+        
+        reset <= '0';
+        wait;
+        
+    end process;
 
     
 
