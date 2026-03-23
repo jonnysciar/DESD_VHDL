@@ -53,112 +53,112 @@ begin
 			case (state) is
 
 				when S0 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S1;
 					else
-						next_state <= S0 --is this correct?
+						next_state <= S0; --is this correct?
 					end if;
 
 				when S1 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S2;
 					else
 						next_state <= S0;
 					end if;
 
 				when S2 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S3;
 					else
 						next_state <= S1;
 					end if;
 
 				when S3 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S4;
 					else
 						next_state <= S2;
 					end if;
 
 				when S4 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S5;
 					else
 						next_state <= S3;
 					end if;
 
 				when S5 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S6;
 					else
 						next_state <= S4;
 					end if;
 
 				when S6 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S7;
 					else
 						next_state <= S5;
 					end if;
 
 				when S7 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S8;
 					else
 						next_state <= S6;
 					end if;
 
 				when S8 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S9;
 					else
 						next_state <= S7;
 					end if;
 
 				when S9 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S10;
 					else
 						next_state <= S8;
 					end if;
 
 				when S10 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S11;
 					else
 						next_state <= S9;
 					end if;
 
 				when S11 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S12;
 					else
 						next_state <= S10;
 					end if;
 
 				when S12 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S13;
 					else
 						next_state <= S11;
 					end if;
 
 				when S13 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S14;
 					else
 						next_state <= S12;
 					end if;
 
 				when S14 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S15;
 					else
 						next_state <= S13;
 					end if;
 
 				when S15 =>
-					if direction = 1 then
+					if direction = '1' then
 						next_state <= S15;  --Is this correct?
 					else
 						next_state <= S14;
