@@ -40,18 +40,22 @@ architecture Behavioral of KittCar is
 	signal reset, clk : std_logic;
 	signal direction : std_logic;            --If direction = 1 we are going rightward
 											 --If direction = 0 we are going leftward
-	
-	
 begin
 
 	leds <= leds_out;
 
-	Next_state_logic : process (state, direction)
-		
+	Next_state_logic : process (state, direction)     --To govern where should I go based on the value of "direction"
 		begin
 
 			case (state) is
 
+				when RST =>					--Is this correct?
+					if direction = '1' then
+						next_state <= S0;
+					else
+						next_state <= S15; 
+					end if;
+				
 				when S0 =>
 					if direction = '1' then
 						next_state <= S1;
@@ -166,6 +170,21 @@ begin
 
 			end case;
 			
+		end process;
+
+		Synchronous_logic : process(clk, reset)      --To actually go to the next state
+		begin
+			
+			if reset = '1' then
+				state <= RST;
+			elsif rising_edge(clk)
+					state <= next_state;
+			end if;
+				
+		end process;
+
+		Output_logic : process(state)
+		begin
 		end process;
 
 end Behavioral;
