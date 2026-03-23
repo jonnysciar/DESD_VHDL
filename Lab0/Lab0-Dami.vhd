@@ -33,11 +33,26 @@ architecture Behavioral of KittCar is
 
 	type state_type is (S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, S14, S15); --One state for every led
 
+	constant current_led_count : 
+
 	signal state, next_state : state_type := S0;
 	signal leds_out : STD_LOGIC_VECTOR(NUM_OF_LEDS-1 downto 0);
 	signal reset, clk : std_logic;
 	
 	
 begin
+
+	leds <= leds_out;
+
+	Next_state_logic : process (clk, state)
+		
+		begin
+
+			case (state) is
+
+				when S0 =>
+				
+			
+		end process;
 
 end Behavioral;
