@@ -31,6 +31,10 @@ end KittCar;
 
 architecture Behavioral of KittCar is
 
+	
+	signal leds_out : STD_LOGIC_VECTOR(NUM_OF_LEDS-1 downto 0);
+	
+	
 begin
 
 end Behavioral;
