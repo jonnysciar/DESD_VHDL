@@ -33,7 +33,6 @@ architecture Behavioral of KittCar is
 
 	type state_type is (S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, S14, S15, RST); --One state for each led
 
-	constant max_leds_used : integer := 16;  --To modify the number of leds on which we run the KittCar effect
 
 	signal state, next_state : state_type := S0;  --For the Finite State Machine
 	signal leds_out : STD_LOGIC_VECTOR(NUM_OF_LEDS-1 downto 0);
@@ -173,7 +172,7 @@ begin
 		end process;
 
 		Synchronous_logic : process(clk, reset)      --To actually go to the next state
-		begin
+		begin										 --I stille have to implement the change of "direction" value
 			
 			if reset = '1' then
 				state <= RST;
@@ -185,6 +184,14 @@ begin
 
 		Output_logic : process(state)
 		begin
+
+			case (state) is
+
+				when S0 =>
+					leds_out <= (NUM_OF_LEDS-1 => '1', others => '0');
+				
+			end case;
+			
 		end process;
 
 end Behavioral;
