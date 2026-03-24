@@ -36,7 +36,7 @@ architecture Behavioral of KittCar is
 
 	signal state, next_state : state_type := S0;  --For the Finite State Machine
 	signal leds_out : STD_LOGIC_VECTOR(NUM_OF_LEDS-1 downto 0);
-	signal reset, clk : std_logic;
+	signal reset_signal, clk_signal : std_logic;
 	signal direction : std_logic;            --If direction = 1 we are going rightward
 											 --If direction = 0 we are going leftward
 begin
