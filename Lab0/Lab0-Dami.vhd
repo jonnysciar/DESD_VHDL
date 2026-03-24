@@ -41,9 +41,9 @@ architecture Behavioral of KittCar is
 											 --If direction = 0 we are going leftward
 begin
 
-	leds <= leds_out;
+	leds <= leds_out;									--I still have to implement the switches and the speed of the blinking
 
-	Next_state_logic : process (state, direction)     --To govern where should I go based on the value of "direction"
+	Next_state_logic : process (state, direction)       --To govern where should I go based on the value of "direction"
 		begin
 
 			case (state) is
@@ -60,7 +60,7 @@ begin
 						next_state <= S1;
 					else
 						direction <= '1';
-						next_state <= S1; --is this correct?
+						next_state <= S1;
 					end if;
 
 				when S1 =>
@@ -162,15 +162,15 @@ begin
 					end if;
 
 				when S15 =>
-						next_state <= S14;  		  --Is this correct?
-						direction <= '0';
+					next_state <= S14;  		  
+					direction <= '0';
 
 			end case;
 			
 		end process;
 
 		Synchronous_logic : process(clk, reset)      --To actually go to the next state
-		begin										 --I still have to implement the change of "direction" value
+		begin										 
 			
 			if reset = '1' then
 				state <= RST;
