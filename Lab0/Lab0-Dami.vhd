@@ -43,24 +43,6 @@ begin
 
 	leds <= leds_out;
 
-	direction_logic : process(direction, state)
-		begin
-
-			case (state) is
-				
-				when S0 =>
-					if direction = '0' then
-						direction <= '1';
-					end if;
-				when S15 =>
-					if direction = '1' then
-						direction <= '0';
-					end if;
-
-			end case;
-
-		end process;
-
 	Next_state_logic : process (state, direction)     --To govern where should I go based on the value of "direction"
 		begin
 
@@ -70,6 +52,7 @@ begin
 					if direction = '1' then
 						next_state <= S0;
 					else
+						direction <= '1';
 						next_state <= S15; 
 					end if;
 				
@@ -182,6 +165,7 @@ begin
 					if direction = '1' then
 						next_state <= S15;  --Is this correct?
 					else
+						direction <= '0';
 						next_state <= S14;
 					end if;
 
