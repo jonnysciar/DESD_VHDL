@@ -43,6 +43,24 @@ begin
 
 	leds <= leds_out;
 
+	direction_logic : process(direction, state)
+		begin
+
+			case (state) is
+				
+				when S0 =>
+					if direction = '0' then
+						direction <= '1';
+					end if;
+				when S15 =>
+					if direction = '1' then
+						direction <= '0';
+					end if;
+
+			end case;
+
+		end process;
+
 	Next_state_logic : process (state, direction)     --To govern where should I go based on the value of "direction"
 		begin
 
@@ -172,7 +190,7 @@ begin
 		end process;
 
 		Synchronous_logic : process(clk, reset)      --To actually go to the next state
-		begin										 --I stille have to implement the change of "direction" value
+		begin										 --I still have to implement the change of "direction" value
 			
 			if reset = '1' then
 				state <= RST;
@@ -182,14 +200,46 @@ begin
 				
 		end process;
 
-		Output_logic : process(state)
+		Output_logic : process(state)				--To govern the ouput
 		begin
 
 			case (state) is
 
 				when S0 =>
 					leds_out <= (NUM_OF_LEDS-1 => '1', others => '0');
-				
+				when S1 =>
+					leds_out <= (NUM_OF_LEDS-2 => '1', others => '0');
+				when S2 =>
+					leds_out <= (NUM_OF_LEDS-3 => '1', others => '0');
+				when S3 =>
+					leds_out <= (NUM_OF_LEDS-4 => '1', others => '0');
+				when S4 =>
+					leds_out <= (NUM_OF_LEDS-5 => '1', others => '0');
+				when S5 =>
+					leds_out <= (NUM_OF_LEDS-6 => '1', others => '0');
+				when S6 =>
+					leds_out <= (NUM_OF_LEDS-7 => '1', others => '0');
+				when S7 =>
+					leds_out <= (NUM_OF_LEDS-8 => '1', others => '0');
+				when S8 =>
+					leds_out <= (NUM_OF_LEDS-9 => '1', others => '0');
+				when S9 =>
+					leds_out <= (NUM_OF_LEDS-10 => '1', others => '0');
+				when S10 =>
+					leds_out <= (NUM_OF_LEDS-11 => '1', others => '0');
+				when S11 =>
+					leds_out <= (NUM_OF_LEDS-12 => '1', others => '0');
+				when S12 =>
+					leds_out <= (NUM_OF_LEDS-13 => '1', others => '0');
+				when S13 =>
+					leds_out <= (NUM_OF_LEDS-14 => '1', others => '0');
+				when S14 =>
+					leds_out <= (NUM_OF_LEDS-15 => '1', others => '0');
+				when S15 =>
+					leds_out <= (NUM_OF_LEDS-16 => '1', others => '0');
+				when RST =>
+					leds_out <= (others => '0');
+						
 			end case;
 			
 		end process;
