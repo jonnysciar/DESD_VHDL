@@ -34,21 +34,21 @@ architecture Behavioral of KittCar is
 	type state_type is (S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, S14, S15, RST); --One state for each led
 
 
-	signal state, next_state : state_type := S0;  --For the Finite State Machine
+	signal state, next_state : state_type := S0;  				--For the Finite State Machine
 	signal leds_out : STD_LOGIC_VECTOR(NUM_OF_LEDS-1 downto 0);
 	signal reset_signal, clk_signal : std_logic;
-	signal direction : std_logic;            --If direction = 1 we are going rightward
-											 --If direction = 0 we are going leftward
+	signal direction : std_logic;            					--If direction = '1' we are going rightward
+											 					--If direction = '0' we are going leftward
 begin
 
-	leds <= leds_out;									--I still have to implement the switches and the speed of the blinking
+	leds <= leds_out;											--I still have to implement the switches and the speed of the blinking
 
-	Next_state_logic : process (state, direction)       --To govern where should I go based on the value of "direction"
+	Next_state_logic : process (state, direction)       		--To govern where should I go based on the value of "direction"
 		begin
 
 			case (state) is
 
-				when RST =>					--Is this correct?
+				when RST =>					
 					if direction = '1' then
 						next_state <= S0;
 					else
