@@ -52,15 +52,15 @@ begin
 					if direction = '1' then
 						next_state <= S0;
 					else
-						direction <= '1';
-						next_state <= S15; 
+						direction <= '1'; 
 					end if;
 				
 				when S0 =>
 					if direction = '1' then
 						next_state <= S1;
 					else
-						next_state <= S0; --is this correct?
+						direction <= '1'
+						next_state <= S1; --is this correct?
 					end if;
 
 				when S1 =>
@@ -162,12 +162,8 @@ begin
 					end if;
 
 				when S15 =>
-					if direction = '1' then
-						next_state <= S15;  --Is this correct?
-					else
+						next_state <= S14;  		  --Is this correct?
 						direction <= '0';
-						next_state <= S14;
-					end if;
 
 			end case;
 			
