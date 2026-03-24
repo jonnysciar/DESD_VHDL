@@ -194,8 +194,8 @@ begin
 			
 			if reset = '1' then
 				state <= RST;
-			elsif rising_edge(clk)
-					state <= next_state;
+			elsif rising_edge(clk) then
+				state <= next_state;
 			end if;
 				
 		end process;
