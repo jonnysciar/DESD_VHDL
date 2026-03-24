@@ -59,7 +59,7 @@ begin
 					if direction = '1' then
 						next_state <= S1;
 					else
-						direction <= '1'
+						direction <= '1';
 						next_state <= S1; --is this correct?
 					end if;
 
