@@ -12,7 +12,7 @@ entity KittCar is
 
 		NUM_OF_SWS		:	INTEGER	RANGE	1 TO 16 := 16;	-- Number of input switches
 		NUM_OF_LEDS		:	INTEGER	RANGE	1 TO 16 := 16;	-- Number of output LEDs
-		MAX_LEDS_USED   :   INTEGER RANGE   1 TO 16 := 16
+		MAX_LEDS_USED   :   INTEGER RANGE   1 TO 16 := 16	--For MAX_LEDS_USD = 1 the circuit doesn't work
 
 	);
 	Port (
