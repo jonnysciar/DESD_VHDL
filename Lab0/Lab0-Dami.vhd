@@ -71,115 +71,129 @@ begin
 					end if;
 
 				when S1 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S0;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S2;
 						count <= 1;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S0;
 					end if;
 
 				when S2 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S1;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S3;
 						count <= 2;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S1;
 					end if;
 
 				when S3 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S2;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S4;
 						count <= 3;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S2;
 					end if;
 
 				when S4 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S3;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S5;
 						count <= 4;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S3;
 					end if;
 
 				when S5 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S4;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S6;
 						count <= 5;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S4;
 					end if;
 
 				when S6 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S5;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S7;
 						count <= 6;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S5;
 					end if;
 
 				when S7 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S6;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S8;
 						count <= 7;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S6;
 					end if;
 
 				when S8 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S7;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S9;
 						count <= 8;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S7;
 					end if;
 
 				when S9 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S8;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S10;
 						count <= 9;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S8;
 					end if;
 
 				when S10 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S9;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S11;
 						count <= 10;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S9;
 					end if;
 
 				when S11 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S10;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S12;
 						count <= 11;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S10;
 					end if;
-
+					
 				when S12 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S11;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S13;
 						count <= 12;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S11;
 					end if;
 
 				when S13 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S12;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S14;
 						count <= 13;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S12;
 					end if;
 
 				when S14 =>
-					if direction = '1' then
+					if count = MAX_LEDS_USED-1 then
+						next_state <= S13;
+						direction <= '0';
+					elsif direction = '1' then
 						next_state <= S15;
 						count <= 14;
-					elsif count = MAX_LEDS_USED-1 then
-						next_state <= S13;
 					end if;
 
 				when S15 =>
