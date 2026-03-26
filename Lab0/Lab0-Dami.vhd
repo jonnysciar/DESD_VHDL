@@ -207,37 +207,37 @@ begin
 			case (state) is
 
 				when S0 =>
-					leds_out <= (NUM_OF_LEDS-1 => '1', others => '0');
+					leds_out <= (15 => '1', others => '0');
 				when S1 =>
-					leds_out <= (NUM_OF_LEDS-2 => '1', others => '0');
+					leds_out <= (14 => '1', others => '0');
 				when S2 =>
-					leds_out <= (NUM_OF_LEDS-3 => '1', others => '0');
+					leds_out <= (13 => '1', others => '0');
 				when S3 =>
-					leds_out <= (NUM_OF_LEDS-4 => '1', others => '0');
+					leds_out <= (12 => '1', others => '0');
 				when S4 =>
-					leds_out <= (NUM_OF_LEDS-5 => '1', others => '0');
+					leds_out <= (11 => '1', others => '0');
 				when S5 =>
-					leds_out <= (NUM_OF_LEDS-6 => '1', others => '0');
+					leds_out <= (10 => '1', others => '0');
 				when S6 =>
-					leds_out <= (NUM_OF_LEDS-7 => '1', others => '0');
+					leds_out <= (9 => '1', others => '0');
 				when S7 =>
-					leds_out <= (NUM_OF_LEDS-8 => '1', others => '0');
+					leds_out <= (8 => '1', others => '0');
 				when S8 =>
-					leds_out <= (NUM_OF_LEDS-9 => '1', others => '0');
+					leds_out <= (7 => '1', others => '0');
 				when S9 =>
-					leds_out <= (NUM_OF_LEDS-10 => '1', others => '0');
+					leds_out <= (6 => '1', others => '0');
 				when S10 =>
-					leds_out <= (NUM_OF_LEDS-11 => '1', others => '0');
+					leds_out <= (5 => '1', others => '0');
 				when S11 =>
-					leds_out <= (NUM_OF_LEDS-12 => '1', others => '0');
+					leds_out <= (4 => '1', others => '0');
 				when S12 =>
-					leds_out <= (NUM_OF_LEDS-13 => '1', others => '0');
+					leds_out <= (3 => '1', others => '0');
 				when S13 =>
-					leds_out <= (NUM_OF_LEDS-14 => '1', others => '0');
+					leds_out <= (2 => '1', others => '0');
 				when S14 =>
-					leds_out <= (NUM_OF_LEDS-15 => '1', others => '0');
+					leds_out <= (1 => '1', others => '0');
 				when S15 =>
-					leds_out <= (NUM_OF_LEDS-16 => '1', others => '0');
+					leds_out <= (0 => '1', others => '0');
 				when RST =>
 					leds_out <= (others => '0');
 						
