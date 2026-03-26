@@ -73,7 +73,7 @@ begin
 					if direction = '1' then
 						next_state <= S2;
 						count <= 1;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S0;
 					end if;
 
@@ -81,7 +81,7 @@ begin
 					if direction = '1' then
 						next_state <= S3;
 						count <= 2;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S1;
 					end if;
 
@@ -89,7 +89,7 @@ begin
 					if direction = '1' then
 						next_state <= S4;
 						count <= 3;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S2;
 					end if;
 
@@ -97,7 +97,7 @@ begin
 					if direction = '1' then
 						next_state <= S5;
 						count <= 4;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S3;
 					end if;
 
@@ -105,7 +105,7 @@ begin
 					if direction = '1' then
 						next_state <= S6;
 						count <= 5;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S4;
 					end if;
 
@@ -113,7 +113,7 @@ begin
 					if direction = '1' then
 						next_state <= S7;
 						count <= 6;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S5;
 					end if;
 
@@ -121,7 +121,7 @@ begin
 					if direction = '1' then
 						next_state <= S8;
 						count <= 7;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S6;
 					end if;
 
@@ -129,7 +129,7 @@ begin
 					if direction = '1' then
 						next_state <= S9;
 						count <= 8;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S7;
 					end if;
 
@@ -137,7 +137,7 @@ begin
 					if direction = '1' then
 						next_state <= S10;
 						count <= 9;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S8;
 					end if;
 
@@ -145,7 +145,7 @@ begin
 					if direction = '1' then
 						next_state <= S11;
 						count <= 10;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S9;
 					end if;
 
@@ -153,7 +153,7 @@ begin
 					if direction = '1' then
 						next_state <= S12;
 						count <= 11;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S10;
 					end if;
 
@@ -161,7 +161,7 @@ begin
 					if direction = '1' then
 						next_state <= S13;
 						count <= 12;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S11;
 					end if;
 
@@ -169,7 +169,7 @@ begin
 					if direction = '1' then
 						next_state <= S14;
 						count <= 13;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S12;
 					end if;
 
@@ -177,7 +177,7 @@ begin
 					if direction = '1' then
 						next_state <= S15;
 						count <= 14;
-					elsif count = NUM_OF_LEDS-1
+					elsif count = NUM_OF_LEDS-1 then
 						next_state <= S13;
 					end if;
 
