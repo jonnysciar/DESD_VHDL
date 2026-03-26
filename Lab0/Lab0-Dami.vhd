@@ -12,6 +12,7 @@ entity KittCar is
 
 		NUM_OF_SWS		:	INTEGER	RANGE	1 TO 16 := 16;	-- Number of input switches
 		NUM_OF_LEDS		:	INTEGER	RANGE	1 TO 16 := 16	-- Number of output LEDs
+		MAX_LEDS_USED   :   INTEGER RANGE   1 TO 16 := 16
 
 	);
 	Port (
@@ -73,7 +74,7 @@ begin
 					if direction = '1' then
 						next_state <= S2;
 						count <= 1;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S0;
 					end if;
 
@@ -81,7 +82,7 @@ begin
 					if direction = '1' then
 						next_state <= S3;
 						count <= 2;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S1;
 					end if;
 
@@ -89,7 +90,7 @@ begin
 					if direction = '1' then
 						next_state <= S4;
 						count <= 3;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S2;
 					end if;
 
@@ -97,7 +98,7 @@ begin
 					if direction = '1' then
 						next_state <= S5;
 						count <= 4;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S3;
 					end if;
 
@@ -105,7 +106,7 @@ begin
 					if direction = '1' then
 						next_state <= S6;
 						count <= 5;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S4;
 					end if;
 
@@ -113,7 +114,7 @@ begin
 					if direction = '1' then
 						next_state <= S7;
 						count <= 6;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S5;
 					end if;
 
@@ -121,7 +122,7 @@ begin
 					if direction = '1' then
 						next_state <= S8;
 						count <= 7;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S6;
 					end if;
 
@@ -129,7 +130,7 @@ begin
 					if direction = '1' then
 						next_state <= S9;
 						count <= 8;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S7;
 					end if;
 
@@ -137,7 +138,7 @@ begin
 					if direction = '1' then
 						next_state <= S10;
 						count <= 9;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S8;
 					end if;
 
@@ -145,7 +146,7 @@ begin
 					if direction = '1' then
 						next_state <= S11;
 						count <= 10;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S9;
 					end if;
 
@@ -153,7 +154,7 @@ begin
 					if direction = '1' then
 						next_state <= S12;
 						count <= 11;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S10;
 					end if;
 
@@ -161,7 +162,7 @@ begin
 					if direction = '1' then
 						next_state <= S13;
 						count <= 12;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S11;
 					end if;
 
@@ -169,7 +170,7 @@ begin
 					if direction = '1' then
 						next_state <= S14;
 						count <= 13;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S12;
 					end if;
 
@@ -177,13 +178,13 @@ begin
 					if direction = '1' then
 						next_state <= S15;
 						count <= 14;
-					elsif count = NUM_OF_LEDS-1 then
+					elsif count = MAX_LEDS_USED-1 then
 						next_state <= S13;
 					end if;
 
 				when S15 =>
 					next_state <= S14;  		  
-					count <= NUM_OF_LEDS-1;
+					count <= MAX_LEDS_USED-1;
 					direction <= '0';
 
 			end case;
@@ -207,37 +208,37 @@ begin
 			case (state) is
 
 				when S0 =>
-					leds_out <= (15 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-1 => '1', others => '0');
 				when S1 =>
-					leds_out <= (14 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-2 => '1', others => '0');
 				when S2 =>
-					leds_out <= (13 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-3 => '1', others => '0');
 				when S3 =>
-					leds_out <= (12 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-4 => '1', others => '0');
 				when S4 =>
-					leds_out <= (11 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-5 => '1', others => '0');
 				when S5 =>
-					leds_out <= (10 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-6 => '1', others => '0');
 				when S6 =>
-					leds_out <= (9 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-7 => '1', others => '0');
 				when S7 =>
-					leds_out <= (8 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-8 => '1', others => '0');
 				when S8 =>
-					leds_out <= (7 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-9 => '1', others => '0');
 				when S9 =>
-					leds_out <= (6 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-10 => '1', others => '0');
 				when S10 =>
-					leds_out <= (5 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-11 => '1', others => '0');
 				when S11 =>
-					leds_out <= (4 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-12 => '1', others => '0');
 				when S12 =>
-					leds_out <= (3 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-13 => '1', others => '0');
 				when S13 =>
-					leds_out <= (2 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-14 => '1', others => '0');
 				when S14 =>
-					leds_out <= (1 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-15 => '1', others => '0');
 				when S15 =>
-					leds_out <= (0 => '1', others => '0');
+					leds_out <= (NUM_OF_LEDS-16 => '1', others => '0');
 				when RST =>
 					leds_out <= (others => '0');
 						
