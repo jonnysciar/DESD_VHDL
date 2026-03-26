@@ -11,7 +11,7 @@ entity KittCar is
 		MIN_KITT_CAR_STEP_MS	:	POSITIVE	RANGE	1	TO	2000    := 1;	-- Minimum step period in milliseconds (i.e., value in milliseconds of Delta_t)
 
 		NUM_OF_SWS		:	INTEGER	RANGE	1 TO 16 := 16;	-- Number of input switches
-		NUM_OF_LEDS		:	INTEGER	RANGE	1 TO 16 := 16	-- Number of output LEDs
+		NUM_OF_LEDS		:	INTEGER	RANGE	1 TO 16 := 16;	-- Number of output LEDs
 		MAX_LEDS_USED   :   INTEGER RANGE   1 TO 16 := 16
 
 	);
