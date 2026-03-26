@@ -184,6 +184,7 @@ begin
 				when S15 =>
 					next_state <= S14;  		  
 					count <= NUM_OF_LEDS-1;
+					direction <= '0';
 
 			end case;
 			
