@@ -40,31 +40,36 @@ architecture Behavioral of KittCar is
     signal counter : INTEGER := 0;
 
     begin
-        process(clk, reset)
+        process(clk)
         begin
-            if reset = '1' then
-                leds_value <= LEDS_INIT;
-                direction <= DIRECTION_INIT;
-                counter <= 0;
-                leds <= STD_LOGIC_VECTOR(leds_value);
-            elsif rising_edge(clk) then
-                counter <= counter + 1;
-                if leds_value = TO_UNSIGNED(LEDS_LL, NUM_OF_LEDS) then
-                    direction <= '0';
-                elsif leds_value = TO_UNSIGNED(LEDS_RL, NUM_OF_LEDS) then
-                    direction <= '1';    
-                end if;
-                if counter >= (MIN_KITT_CAR_STEP_MS * 2**TO_INTEGER(UNSIGNED(sw)) * 1_000_000) / CLK_PERIOD_NS then
+            if rising_edge(clk) then
+                if reset = '1' then
+                    leds_value <= LEDS_INIT;
+                    direction <= DIRECTION_INIT;
                     counter <= 0;
-                    if direction = '1' then
-                        leds_value <= shift_left(leds_value, 1);
-                    else
-                        leds_value <= shift_right(leds_value, 1);
-                    end if;
+                    leds <= STD_LOGIC_VECTOR(LEDS_INIT);
+                else
+                    counter <= counter + 1;
                     
-                    leds <= STD_LOGIC_VECTOR(leds_value);
+                    if leds_value = TO_UNSIGNED(LEDS_RL, NUM_OF_LEDS) then
+                        direction <= '1';
+                    elsif leds_value = TO_UNSIGNED(LEDS_LL, NUM_OF_LEDS) then
+                        direction <= '0';
+                    end if;
+
+                    if counter + 1 >= ((UNSIGNED(sw) + 1) * MIN_KITT_CAR_STEP_MS * 1_000_000) / CLK_PERIOD_NS then
+                        counter <= 0;
+
+                        if direction = '0' then
+                            leds_value <= shift_right(leds_value, 1);
+                            leds <= STD_LOGIC_VECTOR(shift_right(leds_value, 1));
+                        else
+                            leds_value <= shift_left(leds_value, 1);
+                            leds <= STD_LOGIC_VECTOR(shift_left(leds_value, 1));
+                        end if;
+
+                    end if; 
                 end if;
-            end if;     
+            end if; 
         end process;
 end Behavioral;
-
