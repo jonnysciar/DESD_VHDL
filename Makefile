@@ -11,7 +11,7 @@ all: project bitstream
 
 project:
 	mkdir -p $(BUILD_DIR)
-	cd $(BUILD_DIR) && $(VIVADO) -source $(SCRIPT_DIR)/build_project.tcl -tclargs --origin_dir $(ROOT)
+	cd $(BUILD_DIR) && $(VIVADO) -source $(SCRIPT_DIR)/create_project.tcl -tclargs --origin_dir $(ROOT)
 
 bitstream:
 	cd $(BUILD_DIR)/lab_solution && $(VIVADO) -source $(SCRIPT_DIR)/generate_bitstream.tcl
