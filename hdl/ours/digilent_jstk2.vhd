@@ -44,7 +44,7 @@ architecture Behavioral of digilent_jstk2 is
 	-- constant DELAY_CYCLES		: integer := DELAY_US * (CLKFREQ / 1_000_000) + CLKFREQ / SPI_SCLKFREQ;
 
 	type tx_state_t is (WAIT_DELAY, SEND_HEADER, SEND_RED, SEND_GREEN, SEND_BLUE, SEND_DUMMY);
-	signal tx_state 		: tx_state_t;
+	signal tx_state 		: tx_state_t := WAIT_DELAY;
 
 	-- Temporary signals to hold the data before it is sent on the AXI stream
 	signal jstk_x_reg			: std_logic_vector(9 downto 0);
@@ -57,7 +57,7 @@ architecture Behavioral of digilent_jstk2 is
 	------------------------------------------------------------------------------
 
 	type rx_state_t  is (GET_X_LOW, GET_X_HIGH, GET_Y_LOW, GET_Y_HIGH, GET_BTNS);
-	signal rx_state  		: rx_state_t;
+	signal rx_state  		: rx_state_t := GET_X_LOW;
 
 	-- LED registered values
 	signal led_r_reg		: std_logic_vector(7 downto 0);
