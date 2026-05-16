@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity multiplier is
+entity volume_multiplier is
     Generic (
         DATA_WIDTH      : positive := 24;
         AMP_WIDTH       : positive := 5
@@ -16,9 +16,9 @@ entity multiplier is
         
         out_data    : out std_logic_vector(DATA_WIDTH-1 downto 0)
     );
-end multiplier;
+end volume_multiplier;
 
-architecture Behavioral of multiplier is
+architecture Behavioral of volume_multiplier is
 begin
     process(aclk, aresetn)
     begin

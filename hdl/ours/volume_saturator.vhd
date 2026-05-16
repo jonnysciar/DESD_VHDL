@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity saturator is
+entity volume_saturator is
     Generic (
         DATA_WIDTH      : positive := 24;
         HIGHER_BOUND	: integer := 2**23-1;
@@ -17,9 +17,9 @@ entity saturator is
         
         out_data    : out std_logic_vector(DATA_WIDTH-1 downto 0)
     );
-end saturator;
+end volume_saturator;
 
-architecture Behavioral of saturator is
+architecture Behavioral of volume_saturator is
 begin
     process(aclk, aresetn)
     begin

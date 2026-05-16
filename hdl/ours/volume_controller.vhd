@@ -30,7 +30,7 @@ end volume_controller;
 
 architecture Behavioral of volume_controller is
 
-    component multiplier is
+    component volume_multiplier is
         Generic (
             DATA_WIDTH      : positive := 24;
             AMP_WIDTH       : positive := 5
@@ -46,7 +46,7 @@ architecture Behavioral of volume_controller is
         );
     end component;
 
-    component saturator is
+    component volume_saturator is
         Generic (
             DATA_WIDTH      : positive := 24;
             HIGHER_BOUND	: integer := 2**23-1;
@@ -72,7 +72,7 @@ architecture Behavioral of volume_controller is
 
 begin
 
-    multiplier_inst: multiplier
+    multiplier_inst: volume_multiplier
     generic map (
         DATA_WIDTH => TDATA_WIDTH,
         AMP_WIDTH => AMP_WIDTH
@@ -87,7 +87,7 @@ begin
         out_data => amp_data
     );
 
-    saturator_inst: saturator
+    saturator_inst: volume_saturator
     generic map (
         DATA_WIDTH => TDATA_WIDTH,
         HIGHER_BOUND => HIGHER_BOUND,
