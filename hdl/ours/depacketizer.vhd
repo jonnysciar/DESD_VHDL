@@ -77,18 +77,20 @@ begin
                             r_state <= FOOTER_STATE;
                         end if;
                     when FOOTER_STATE =>
-                        if send_audio_int = '0' and
-                            (unsigned(remaining_minutes_tmp) /= 0 or unsigned(remaining_seconds_tmp) /= 0) then
+                        if s_axis_tdata = FOOTER  then
+                            if send_audio_int = '0' and
+                                (unsigned(remaining_minutes_tmp) /= 0 or unsigned(remaining_seconds_tmp) /= 0) then
                                 send_audio_int <= '1';
                                 remaining_minutes_int <= remaining_minutes_tmp;
                                 remaining_seconds_int <= remaining_seconds_tmp;
                                 s_axis_tready_int <= '0';
                                 counter <= 0;
-                        elsif send_audio_int = '1' and 
-                            unsigned(remaining_minutes_tmp) = 0 and unsigned(remaining_seconds_tmp) = 0 then
+                            elsif send_audio_int = '1' and
+                                unsigned(remaining_minutes_tmp) = 0 and unsigned(remaining_seconds_tmp) = 0 then
                                 send_audio_int <= '0';
                                 remaining_minutes_int <= (others => '0');
                                 remaining_seconds_int <= (others => '0');
+                            end if;
                         end if;
                         r_state <= HEADER_STATE;
                 end case;
