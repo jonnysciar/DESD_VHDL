@@ -8,28 +8,28 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
-   "${origin_dir}/hdl/led_level_controller.vhd" \
-   "${origin_dir}/hdl/digilent_jstk2.vhd" \
-   "${origin_dir}/hdl/effect_selector.vhd" \
-   "${origin_dir}/hdl/driver_4_7_seg.vhd" \
-   "${origin_dir}/hdl/moving_average.vhd" \
-   "${origin_dir}/hdl/balance_controller.vhd" \
-   "${origin_dir}/hdl/volume_multiplier.vhd" \
-   "${origin_dir}/hdl/volume_saturator.vhd" \
-   "${origin_dir}/hdl/volume_controller.vhd" \
-   "${origin_dir}/hdl/edge_detector_trigger.vhd" \
-   "${origin_dir}/hdl/output_sel.vhd" \
-   "${origin_dir}/hdl/bram_controller.vhd" \
-   "${origin_dir}/hdl/delay.vhd" \
-   "${origin_dir}/hdl/reverb.vhd" \
-   "${origin_dir}/hdl/float_compressor.vhd" \
-   "${origin_dir}/hdl/axis_fifo.vhd" \
-   "${origin_dir}/hdl/depacketizer.vhd" \
-   "${origin_dir}/hdl/send_controller.vhd" \
-   "${origin_dir}/hdl/division_lut.vhd" \
-   "${origin_dir}/hdl/binary_to_decimal.vhd" \
-   "${origin_dir}/hdl/design_1_wrapper.vhd" \
-   "${origin_dir}/hdl/archive_project_summary.txt" \
+   "${origin_dir}/build/hdl/led_level_controller.vhd" \
+   "${origin_dir}/build/hdl/digilent_jstk2.vhd" \
+   "${origin_dir}/build/hdl/effect_selector.vhd" \
+   "${origin_dir}/build/hdl/driver_4_7_seg.vhd" \
+   "${origin_dir}/build/hdl/moving_average.vhd" \
+   "${origin_dir}/build/hdl/balance_controller.vhd" \
+   "${origin_dir}/build/hdl/volume_multiplier.vhd" \
+   "${origin_dir}/build/hdl/volume_saturator.vhd" \
+   "${origin_dir}/build/hdl/volume_controller.vhd" \
+   "${origin_dir}/build/hdl/edge_detector_trigger.vhd" \
+   "${origin_dir}/build/hdl/output_sel.vhd" \
+   "${origin_dir}/build/hdl/bram_controller.vhd" \
+   "${origin_dir}/build/hdl/delay.vhd" \
+   "${origin_dir}/build/hdl/reverb.vhd" \
+   "${origin_dir}/build/hdl/float_compressor.vhd" \
+   "${origin_dir}/build/hdl/axis_fifo.vhd" \
+   "${origin_dir}/build/hdl/depacketizer.vhd" \
+   "${origin_dir}/build/hdl/send_controller.vhd" \
+   "${origin_dir}/build/hdl/division_lut.vhd" \
+   "${origin_dir}/build/hdl/binary_to_decimal.vhd" \
+   "${origin_dir}/build/hdl/design_1_wrapper.vhd" \
+   "${origin_dir}/build/hdl/archive_project_summary.txt" \
    "${origin_dir}/constraints/Basys3_Constraints.xdc" \
   ]
   foreach ifile $files {
@@ -169,29 +169,29 @@ if { $obj != {} } {
 set obj [get_filesets sources_1]
 # Import local files from the original project
 set files [list \
- [file normalize "${origin_dir}/hdl/led_level_controller.vhd"]\
- [file normalize "${origin_dir}/hdl/digilent_jstk2.vhd"]\
- [file normalize "${origin_dir}/hdl/effect_selector.vhd"]\
- [file normalize "${origin_dir}/hdl/driver_4_7_seg.vhd"]\
- [file normalize "${origin_dir}/hdl/moving_average.vhd"]\
- [file normalize "${origin_dir}/hdl/balance_controller.vhd"]\
- [file normalize "${origin_dir}/hdl/volume_multiplier.vhd"]\
- [file normalize "${origin_dir}/hdl/volume_saturator.vhd"]\
- [file normalize "${origin_dir}/hdl/volume_controller.vhd"]\
- [file normalize "${origin_dir}/hdl/edge_detector_trigger.vhd"]\
- [file normalize "${origin_dir}/hdl/output_sel.vhd"]\
- [file normalize "${origin_dir}/hdl/bram_controller.vhd"]\
- [file normalize "${origin_dir}/hdl/delay.vhd"]\
- [file normalize "${origin_dir}/hdl/reverb.vhd"]\
- [file normalize "${origin_dir}/hdl/float_compressor.vhd"]\
- [file normalize "${origin_dir}/hdl/axis_fifo.vhd"]\
- [file normalize "${origin_dir}/hdl/depacketizer.vhd"]\
- [file normalize "${origin_dir}/hdl/send_controller.vhd"]\
- [file normalize "${origin_dir}/hdl/division_lut.vhd"]\
- [file normalize "${origin_dir}/hdl/binary_to_decimal.vhd"]\
- [file normalize "${origin_dir}/hdl/design_1_wrapper.vhd"]\
- [file normalize "${origin_dir}/hdl/archive_project_summary.txt"]\
- [file normalize "${origin_dir}/hdl/archive_project_summary.txt" ]\
+ [file normalize "${origin_dir}/build/hdl/led_level_controller.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/digilent_jstk2.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/effect_selector.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/driver_4_7_seg.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/moving_average.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/balance_controller.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/volume_multiplier.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/volume_saturator.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/volume_controller.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/edge_detector_trigger.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/output_sel.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/bram_controller.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/delay.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/reverb.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/float_compressor.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/axis_fifo.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/depacketizer.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/send_controller.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/division_lut.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/binary_to_decimal.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/design_1_wrapper.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/archive_project_summary.txt"]\
+ [file normalize "${origin_dir}/build/hdl/archive_project_summary.txt" ]\
 ]
 set imported_files [import_files -fileset sources_1 $files]
 
@@ -316,7 +316,7 @@ if {[string equal [get_filesets -quiet sim_1] ""]} {
 set obj [get_filesets sim_1]
 # Import local files from the original project
 set files [list \
- [file normalize "${origin_dir}/hdl/tb/float_compressor_tb.vhd"]\
+ [file normalize "${origin_dir}/build/hdl/tb/float_compressor_tb.vhd"]\
 ]
 set imported_files [import_files -fileset sim_1 $files]
 
@@ -490,7 +490,7 @@ proc cr_bd_design_1 { parentCell } {
 
    foreach mod_vlnv $list_check_mods {
       if { [can_resolve_reference $mod_vlnv] == 0 } {
-         lappend list_mods_missing $mod_vlnv
+        lappend list_mods_missing $mod_vlnv
       }
    }
 

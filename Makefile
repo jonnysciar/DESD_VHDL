@@ -16,14 +16,18 @@ t ?= 10
 all: project bitstream
 
 project:
-	mkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)/hdl/tb
+	cp hdl/archive_project_summary.txt $(BUILD_DIR)/hdl
+	cp hdl/*.vhd $(BUILD_DIR)/hdl
+	cp hdl/ours/*.vhd $(BUILD_DIR)/hdl
+	cp hdl/tb/*.vhd $(BUILD_DIR)/hdl/tb
 	cd $(BUILD_DIR) && $(VIVADO) -source $(SCRIPT_DIR)/create_project.tcl -tclargs --origin_dir $(ROOT)
 
 bitstream:
 	cd $(BUILD_DIR)/lab_solution && $(VIVADO) -source $(SCRIPT_DIR)/generate_bitstream.tcl
 
 open_gui:
-	cd $(BUILD_DIR)/$(TARGET) && vivado $(TARGET).xpr
+	cd $(BUILD_DIR)/lab_solution && vivado lab_solution.xpr
 
 record:
 	cd $(ROOT)/sw && python3 record.py -t $(t)
