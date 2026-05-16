@@ -4,11 +4,15 @@
 
 ## Quick Start
 
-- ` source env.sh` sources Vivado and exports correct LC_NUMERIC (fix for synthesis error).
-- ` make all` generates the bitstream for the provided instructor's solution in the `/build/lab_solution` folder.
-- ` make record t= ` to run the Python recording script, variable `t` is expressed in seconds.
+- `make all` generates the bitstream for the provided instructor's solution in the `/build/lab_solution` folder.
+- `make sim TARGET=dut_name` creates a Vivado project in the folder `build/dut_name`, sourcing `hdl/ours/dut_name.vhd` and `hdl/tb/dut_name_tb.vhd` into the project.
+- `make record t= ` to run the Python recording script, variable `t` is expressed in seconds.
 
 Check out the Makefile for the complete target list.
+
+> Running the following command:  
+> `export LC_NUMERIC=en_US.UTF-8`  
+> may solve synthesis errors.
 
 ## Testing New Modules
 

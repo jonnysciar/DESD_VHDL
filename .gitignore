@@ -1,2 +1,13 @@
 /build
 /output
+env.sh
+
+# VSCode settings
+.vscode/
+
+# Virtual Environments
+.venv/
+
+# Other Python ignores
+__pycache__/
+*.pyc
