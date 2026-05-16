@@ -38,10 +38,8 @@ architecture Behavioral of digilent_jstk2 is
 
 	constant CMDSETLEDRGB		: std_logic_vector(7 downto 0) := x"84";
 
-	-- CHIEDI AI PROF:
-	-- perchè solo 1 byte?
 	-- Inter-packet delay plus the time needed to transfer 1 byte (for the CS de-assertion)
-	-- constant DELAY_CYCLES		: integer := DELAY_US * (CLKFREQ / 1_000_000) + CLKFREQ / SPI_SCLKFREQ;
+	constant DELAY_CYCLES		: integer := DELAY_US * (CLKFREQ / 1_000_000) + CLKFREQ / SPI_SCLKFREQ;
 
 	type tx_state_t is (WAIT_DELAY, SEND_HEADER, SEND_RED, SEND_GREEN, SEND_BLUE, SEND_DUMMY);
 	signal tx_state 		: tx_state_t := WAIT_DELAY;
@@ -50,8 +48,6 @@ architecture Behavioral of digilent_jstk2 is
 	signal jstk_x_reg			: std_logic_vector(9 downto 0);
 	signal jstk_y_reg			: std_logic_vector(9 downto 0);
 	
-	-- Calculate delay: (25us delay) + (time to send 5 bytes) at CLKFREQ
-	constant DELAY_CYCLES 		: integer := (CLKFREQ / 1_000_000) * DELAY_US + ((CLKFREQ / SPI_SCLKFREQ)*5);
 	signal delay_counter 		: integer range 0 to DELAY_CYCLES := 0;
 
 	------------------------------------------------------------------------------
@@ -78,6 +74,14 @@ begin
 		'1'	when SEND_GREEN,
 		'1'	when SEND_BLUE,
 		'1'	when SEND_DUMMY;
+		
+	with tx_state select m_axis_tdata <=
+		CMDSETLEDRGB	when SEND_HEADER,
+		led_r_reg		when SEND_RED,
+		led_g_reg		when SEND_GREEN,
+		led_b_reg		when SEND_BLUE,
+		x"00"			when SEND_DUMMY,
+		x"00"			when others;
 	
 	m_axis: process(aclk, aresetn)
 	begin
@@ -98,7 +102,6 @@ begin
 
 				when SEND_HEADER =>
 					if m_axis_tready = '1' then
-						m_axis_tdata	<= CMDSETLEDRGB;	-- Header byte for cmdSetLEDs
 						-- Register the inputs here so they are stable for the entire cmdSetLEDs transaction
 						led_r_reg		<= led_r;
 						led_g_reg		<= led_g;
@@ -108,25 +111,21 @@ begin
 
 				when SEND_RED =>
 					if m_axis_tready = '1' then
-						m_axis_tdata	<= led_r_reg;
 						tx_state <= SEND_GREEN;
 					end if;
 
 				when SEND_GREEN =>
 					if m_axis_tready = '1' then
-						m_axis_tdata	<= led_g_reg;
 						tx_state <= SEND_BLUE;
 					end if;
 
 				when SEND_BLUE =>
 					if m_axis_tready = '1' then
-						m_axis_tdata	<= led_b_reg;
 						tx_state <= SEND_DUMMY;
 					end if;
 
 				when SEND_DUMMY =>
 					if m_axis_tready = '1' then
-						m_axis_tdata	<= x"00";		-- Dummy byte
 						tx_state <= WAIT_DELAY;			-- Go back to delay state
 					end if;
 			end case;
@@ -137,8 +136,6 @@ begin
 	------------------------------------------------------------------------------------
 	-- SPI to IP: Receive joystick data and send it to effect selector and edge detector
 	------------------------------------------------------------------------------------
-
-	-- We don't have a tready signal on the slave side since we always accept data
 
 	s_axis: process(aclk, aresetn)
 	begin
@@ -157,7 +154,7 @@ begin
 					when GET_X_HIGH =>
 						jstk_x_reg(9 downto 8) 	<= s_axis_tdata(1 downto 0);
 						-- Update the output for jstk_x after receiving the complete info
-						jstk_x					<= jstk_x_reg; 	
+						jstk_x					<= s_axis_tdata(1 downto 0) & jstk_x_reg(7 downto 0); 	
 						rx_state 				<= GET_Y_LOW;
 					when GET_Y_LOW =>
 						jstk_y_reg(7 downto 0) 	<= s_axis_tdata;
@@ -165,11 +162,10 @@ begin
 					when GET_Y_HIGH =>
 						jstk_y_reg(9 downto 8) 	<= s_axis_tdata(1 downto 0);
 						-- Update the output for jstk_y after receiving the complete info
-						jstk_y					<= jstk_y_reg; 	
+						jstk_y					<= s_axis_tdata(1 downto 0) & jstk_y_reg(7 downto 0); 	
 						rx_state 				<= GET_BTNS;
 					when GET_BTNS =>
-						-- Sort FS Status into the appropriate output signals
-						-- Cross-reference with the joystick's datasheet
+						-- Sort FS Status as per joystick's datasheet
 						btn_jstk				<= s_axis_tdata(0);
 						btn_trigger				<= s_axis_tdata(1);
 						-- Go back to the beginning of the transaction for the next set of data
