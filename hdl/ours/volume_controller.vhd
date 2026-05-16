@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity volume_controller_1 is
+entity volume_controller is
     Generic (
         TDATA_WIDTH		: positive := 24;
         VOLUME_WIDTH	: positive := 10;
@@ -26,9 +26,9 @@ entity volume_controller_1 is
 
         volume			: in std_logic_vector(VOLUME_WIDTH-1 downto 0)
     );
-end volume_controller_1;
+end volume_controller;
 
-architecture Behavioral of volume_controller_1 is
+architecture Behavioral of volume_controller is
 
     component multiplier is
         Generic (
