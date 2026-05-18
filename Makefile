@@ -5,6 +5,8 @@ SCRIPT_DIR := $(ROOT)/scripts
 # Vivado command line arguments
 VIVADO := vivado -mode batch -notrace
 
+MODULES := $(shell cat module_config)
+
 # Target DUT name for simulation flow (empty by default — must be provided when running)
 TARGET ?=
 
@@ -15,11 +17,20 @@ t ?= 10
 
 all: project bitstream
 
+test:
+	@for MODULE in $(MODULES); do \
+		cp hdl/ours/$$MODULE.vhd $(BUILD_DIR)/hdl
+	done
+
 project:
 	mkdir -p $(BUILD_DIR)/hdl/tb
 	cp hdl/archive_project_summary.txt $(BUILD_DIR)/hdl
 	cp hdl/*.vhd $(BUILD_DIR)/hdl
-	cp hdl/ours/*.vhd $(BUILD_DIR)/hdl
+
+	@for MODULE in $(MODULES); do \
+		cp hdl/ours/$$MODULE.vhd $(BUILD_DIR)/hdl
+	done
+	
 	cp hdl/tb/*.vhd $(BUILD_DIR)/hdl/tb
 	cd $(BUILD_DIR) && $(VIVADO) -source $(SCRIPT_DIR)/create_project.tcl -tclargs --origin_dir $(ROOT)
 
