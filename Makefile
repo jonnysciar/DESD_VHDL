@@ -17,18 +17,13 @@ t ?= 10
 
 all: project bitstream
 
-test:
-	@for MODULE in $(MODULES); do \
-		cp hdl/ours/$$MODULE.vhd $(BUILD_DIR)/hdl
-	done
-
 project:
 	mkdir -p $(BUILD_DIR)/hdl/tb
 	cp hdl/archive_project_summary.txt $(BUILD_DIR)/hdl
 	cp hdl/*.vhd $(BUILD_DIR)/hdl
 
 	@for MODULE in $(MODULES); do \
-		cp hdl/ours/$$MODULE.vhd $(BUILD_DIR)/hdl
+		cp hdl/ours/$$MODULE.vhd $(BUILD_DIR)/hdl; \
 	done
 	
 	cp hdl/tb/*.vhd $(BUILD_DIR)/hdl/tb
