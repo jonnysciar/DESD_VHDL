@@ -28,27 +28,21 @@ entity volume_multiplier is
 end volume_multiplier;
 
 architecture Behavioral of volume_multiplier is
-    signal s_axis_tready_int : std_logic := '0';
-    signal m_axis_tvalid_int : std_logic := '0';
-
 begin
-    s_axis_tready <= s_axis_tready_int;
-    m_axis_tvalid <= m_axis_tvalid_int;
+    s_axis_tready <= m_axis_tready;
 
     process(aclk, aresetn)
     variable v_amp_factor : integer;
     variable v_data	: std_logic_vector(TDATA_WIDTH-2 downto 0);
     begin
         if aresetn = '0' then
-            s_axis_tready_int <= '0';
-            m_axis_tvalid_int <= '0';
+            m_axis_tvalid <= '0';
         elsif rising_edge(aclk) then
-            s_axis_tready_int <= '1';
-            m_axis_tvalid_int <= '0';
+            m_axis_tvalid <= '0';
             
-            if s_axis_tvalid = '1' and s_axis_tready_int = '1' and m_axis_tready = '1' then
+            if s_axis_tvalid = '1' and m_axis_tready = '1' then
                 m_axis_tlast <= s_axis_tlast;
-                m_axis_tvalid_int <= '1';
+                m_axis_tvalid <= '1';
                 v_amp_factor := to_integer(signed(amp_factor));
                 
                 if v_amp_factor > 0 then

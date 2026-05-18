@@ -63,8 +63,6 @@ architecture Behavioral of volume_controller is
     signal m_axis_tlast_mult    : std_logic := '0';
     signal m_axis_tready_mult   : std_logic := '0';
 
-    signal s_axis_tready_int   : std_logic := '0';
-
     signal amp_factor       : std_logic_vector(AMP_WIDTH-1 downto 0) := (others => '0');
 
 
@@ -94,19 +92,17 @@ begin
         amp_factor => amp_factor
     );
 
-    s_axis_tready <= s_axis_tready_int;
+    s_axis_tready <= m_axis_tready_mult;
 
     process(aclk, aresetn)
     begin
         if aresetn = '0' then
-            s_axis_tready_int <= '0';
             amp_factor <= (others => '0');
         elsif rising_edge(aclk) then
-            s_axis_tready_int <= '1';
             m_axis_tvalid_mult <= '0';
             amp_factor <= (others => '0');
 
-            if s_axis_tvalid = '1' and s_axis_tready_int = '1' and m_axis_tready_mult = '1' then
+            if s_axis_tvalid = '1' and m_axis_tready_mult = '1' then
                 m_axis_tvalid_mult <= s_axis_tvalid;
                 m_axis_tdata_mult <= s_axis_tdata;
                 m_axis_tlast_mult <= s_axis_tlast;
