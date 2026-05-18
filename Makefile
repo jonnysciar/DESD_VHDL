@@ -27,7 +27,7 @@ bitstream:
 	cd $(BUILD_DIR)/lab_solution && $(VIVADO) -source $(SCRIPT_DIR)/generate_bitstream.tcl
 
 open_gui:
-	cd $(BUILD_DIR)/lab_solution && vivado lab_solution.xpr
+	cd $(BUILD_DIR)/$(TARGET) && vivado $(TARGET).xpr
 
 record:
 	cd $(ROOT)/sw && python3 record.py -t $(t)
