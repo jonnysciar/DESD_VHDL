@@ -57,7 +57,16 @@ architecture Behavioral of volume_controller is
 
     constant AMP_WIDTH      : integer := 5;
     constant base_interval 	: integer := 2**(VOLUME_WIDTH - VOLUME_STEP_2 - 1);
+
+    signal m_axis_tvalid_mult   : std_logic := '0';
+    signal m_axis_tdata_mult    : std_logic_vector(TDATA_WIDTH-1 downto 0);
+    signal m_axis_tlast_mult    : std_logic := '0';
+    signal m_axis_tready_mult   : std_logic := '0';
+
+    signal s_axis_tready_int   : std_logic := '0';
+
     signal amp_factor       : std_logic_vector(AMP_WIDTH-1 downto 0) := (others => '0');
+
 
 begin
 
@@ -72,10 +81,10 @@ begin
         aresetn => aresetn,
         aclk => aclk,
         
-        s_axis_tvalid => s_axis_tvalid,
-        s_axis_tdata => s_axis_tdata, 
-        s_axis_tlast => s_axis_tlast, 
-        s_axis_tready => s_axis_tready, 
+        s_axis_tvalid => m_axis_tvalid_mult,
+        s_axis_tdata => m_axis_tdata_mult, 
+        s_axis_tlast => m_axis_tlast_mult, 
+        s_axis_tready => m_axis_tready_mult, 
 
         m_axis_tvalid => m_axis_tvalid,
         m_axis_tdata => m_axis_tdata,
@@ -85,15 +94,28 @@ begin
         amp_factor => amp_factor
     );
 
+    s_axis_tready <= s_axis_tready_int;
+
     process(aclk, aresetn)
     begin
         if aresetn = '0' then
+            s_axis_tready_int <= '0';
             amp_factor <= (others => '0');
         elsif rising_edge(aclk) then
-            if unsigned(volume) > (2**VOLUME_WIDTH - 1) - 2**(VOLUME_STEP_2 - 1) then
-                amp_factor <= std_logic_vector(to_signed(2**(VOLUME_WIDTH - VOLUME_STEP_2) - base_interval, AMP_WIDTH));
-            else
-                amp_factor <= std_logic_vector(to_signed(to_integer(shift_right(unsigned(volume) + 2**(VOLUME_STEP_2 - 1), VOLUME_STEP_2)) - base_interval, AMP_WIDTH));
+            s_axis_tready_int <= '1';
+            m_axis_tvalid_mult <= '0';
+            amp_factor <= (others => '0');
+
+            if s_axis_tvalid = '1' and s_axis_tready_int = '1' and m_axis_tready_mult = '1' then
+                m_axis_tvalid_mult <= s_axis_tvalid;
+                m_axis_tdata_mult <= s_axis_tdata;
+                m_axis_tlast_mult <= s_axis_tlast;
+
+                if unsigned(volume) > (2**VOLUME_WIDTH - 1) - 2**(VOLUME_STEP_2 - 1) then
+                    amp_factor <= std_logic_vector(to_signed(2**(VOLUME_WIDTH - VOLUME_STEP_2) - base_interval, AMP_WIDTH));
+                else
+                    amp_factor <= std_logic_vector(to_signed(to_integer(shift_right(unsigned(volume) + 2**(VOLUME_STEP_2 - 1), VOLUME_STEP_2)) - base_interval, AMP_WIDTH));
+                end if;
             end if;
         end if;
     end process;
