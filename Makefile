@@ -27,7 +27,12 @@ bitstream:
 	cd $(BUILD_DIR)/lab_solution && $(VIVADO) -source $(SCRIPT_DIR)/generate_bitstream.tcl
 
 open_gui:
-	cd $(BUILD_DIR)/$(TARGET) && vivado $(TARGET).xpr
+	@if [ -d "$(BUILD_DIR)/$(TARGET)" ]; then \
+		cd $(BUILD_DIR)/$(TARGET) && vivado $(TARGET).xpr; \
+	else \
+		echo "Error: $(BUILD_DIR)/$(TARGET) does not exist"; \
+		exit 1; \
+	fi
 
 record:
 	cd $(ROOT)/sw && python3 record.py -t $(t)
