@@ -30,9 +30,13 @@ set obj [current_project]
 set_property -name "board_part" -value "digilentinc.com:basys3:part0:1.2" -objects $obj
 set_property -name "target_language" -value "VHDL" -objects $obj
 
-# Add the design file
+# Add DUT design files
 add_files -norecurse "${origin_dir}/hdl/ours/${target}.vhd"
 set_property file_type VHDL [get_files "${origin_dir}/hdl/ours/${target}.vhd"]
+
+# Add reference design files
+add_files -norecurse "${origin_dir}/hdl/${target}.vhd"
+set_property file_type VHDL [get_files "${origin_dir}/hdl/${target}.vhd"]
 
 # Add the testbench file
 # Note: we add it directly to the simulation fileset (sim_1)
