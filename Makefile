@@ -5,8 +5,8 @@ SCRIPT_DIR := $(ROOT)/scripts
 # Vivado command line arguments
 VIVADO := vivado -mode batch -notrace
 
-# Target DUT name for simulation flow
-TARGET ?= led_level_controller
+# Target DUT name for simulation flow (empty by default — must be provided when running)
+TARGET ?=
 
 # Time in seconds for recording audio
 t ?= 10
@@ -27,7 +27,11 @@ bitstream:
 	cd $(BUILD_DIR)/lab_solution && $(VIVADO) -source $(SCRIPT_DIR)/generate_bitstream.tcl
 
 open_gui:
-	@if [ -d "$(BUILD_DIR)/$(TARGET)" ]; then \
+	@if [ -z "$(TARGET)" ]; then \
+		echo "Error: TARGET is not set. Run 'make open_gui TARGET=<name>'"; \
+		exit 1; \
+	fi; \
+	if [ -d "$(BUILD_DIR)/$(TARGET)" ]; then \
 		cd $(BUILD_DIR)/$(TARGET) && vivado $(TARGET).xpr; \
 	else \
 		echo "Error: $(BUILD_DIR)/$(TARGET) does not exist"; \
@@ -38,6 +42,10 @@ record:
 	cd $(ROOT)/sw && python3 record.py -t $(t)
 
 sim:
+	@if [ -z "$(TARGET)" ]; then \
+		echo "Error: TARGET is not set. Run 'make sim TARGET=<name>'"; \
+		exit 1; \
+	fi; \
 	cd $(BUILD_DIR) && $(VIVADO) -source $(SCRIPT_DIR)/create_sim.tcl -tclargs --origin_dir $(ROOT) --target $(TARGET)
 
 clean:
