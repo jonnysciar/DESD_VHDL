@@ -1,15 +1,8 @@
-----------------------------------------------------------------------------------
--- Module Name: led_level_controller
--- Revision:    0.1 - File Created
---              0.2 - First version
---              
-----------------------------------------------------------------------------------
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity led_level_controller_1 is
+entity led_level_controller is
     generic(
         NUM_LEDS : positive := 16;
         CHANNEL_LENGHT  : positive := 24;   -- 3 Byte for AXIS audio I2S
@@ -29,9 +22,9 @@ entity led_level_controller_1 is
         s_axis_tready	: out std_logic
 
     );
-end led_level_controller_1;
+end led_level_controller;
 
-architecture Behavioral of led_level_controller_1 is
+architecture Behavioral of led_level_controller is
     
     type state_type is (IDLE, SAMPLE_LEFT, SAMPLE_RIGHT, UPDATE_LEDS);
     signal state : state_type := IDLE;
