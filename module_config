@@ -1,2 +1,8 @@
-volume_controller
 balance_controller
+depacketizer
+digilent_jstk2
+float_compressor
+led_level_controller
+output_sel
+volume_controller
+volume_multiplier
