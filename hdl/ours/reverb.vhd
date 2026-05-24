@@ -48,7 +48,7 @@ architecture Behavioral of reverb is
 
     --- Components declarations ---------------------------------------------------
 
-    component delay is
+    component delay is      -- provided in the solution
         generic(
             CHANNEL_LENGHT  : integer;
             DELAY_LENGHT  : integer;
@@ -69,7 +69,26 @@ architecture Behavioral of reverb is
         );
     end component;
 
-    --- Signal declarations -------------------------------------------------------
+    --- FSM states declarations ---------------------------------------------------
+
+    type axis_fsm_t is (DISABLE, SAMPLE_L, SAMPLE_R, PROCESSING, WRITE_L, WRITE_R);
+    signal axis_state : axis_fsm_t := SAMPLE_L;
+
+    type reverb_fsm_t is (IDLE, DELAY, MULTIPLY, GAIN, SUM, SAT);
+    signal left_ch_state : reverb_fsm_t := IDLE;
+    signal right_ch_state : reverb_fsm_t := IDLE;
+
+    --- Flags ---------------------------------------------------------------------
+    signal start_left   : std_logic := '0'; 
+    signal end_left     : std_logic := '0';
+    signal start_right  : std_logic := '0';
+    signal end_right    : std_logic := '0';   
+
+    --- Registers -----------------------------------------------------------------
+
+    signal s_axis_tready_int    : std_logic := '0';
+    signal m_axis_tdata_tmp     : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+    signal m_axis_tvalid_tmp    : std_logic;
 
     signal y_out_delay          : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
     
@@ -84,38 +103,123 @@ architecture Behavioral of reverb is
 
     signal mul_res              : std_logic_vector(CHANNEL_LENGHT+GAIN_LENGHT-2 downto 0);
 
-    signal data_gain            : std_logic_vector();
+    -- signal data_gain            : std_logic_vector();
 
-    signal sum_res              : std_logic_vector();
+    -- signal sum_res              : std_logic_vector();
 
-    signal m_axis_tdata_tmp     : std_logic_vector();
-    signal m_axis_tvalid_tmp    : std_logic_vector()
 
 begin
 
+    --- Delay module instance -----------------------------------------------------
     delay_inst: delay
     generic map(
-
+        CHANNEL_LENGHT  => CHANNEL_LENGHT,
+        DELAY_LENGHT    => DELAY_LENGHT,
+        DELAY_INIT      => DELAY_INIT,
+        LOG2_DELAY_INCR => LOG2_DELAY_INCR
     )
-    port map(
-        aclk        => aclk;
-        aresetn     => aresetn;
+    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => m_axis_tdata_tmp, 
+              data_in_valid => m_axis_tvalid_tmp, data_out => y_out_delay );
+
+    --- AXIS tvalid/tready control logic ------------------------------------------
+    with axis_state select s_axis_tready_int <=
+        '1' when SAMPLE_L | SAMPLE_R,
+        '0' when PROCESSING | WRITE_L | WRITE_R;
+
+    with axis_state select m_axis_tvalid <=
+        '1' when WRITE_L | WRITE_R,
+        '0' when SAMPLE_L | SAMPLE_R | PROCESSING;
+
+    axis_fsm: process(aclk, aresetn)
+    begin
+        if aresetn = '0' then
+            s_axis_tready_int <= '0';
+
+        elsif rising_edge(aclk) then
+
+            if enable_reverb = '0' then
+                -- short circuit
+                m_axis_tdata <= s_axis_tdata;
+                m_axis_tvalid <= s_axis_tvalid;
+                m_axis_tlast <= s_axis_tlast;
+                s_axis_tready_int <= m_axis_tready;
+            else enable_reverb = '1' then
+                case axis_state is
+
+                    when SAMPLE_L =>
+                        if s_axis_tvalid = '1' then
+                            x_in1 <= s_axis_tdata;
+
+                            left_ready <= '1';
+
+                            axis_state <= SAMPLE_R;
+                        end if;
+                        
+                    when SAMPLE_R =>
+                        if s_axis_tvalid = '1' then
+                            x_in2 <= x_in1;
+                            x_in1 <= s_axis_tdata;
+
+                            axis_state <= PROCESSING;
+                            left_ch_state <= DELAY;
+                        end if;
+
+                    when PROCESSING =>
+                        
+
+                    when WRITE_L =>
+                        m_axis_tdata_tmp    <= m_axis_tdata_tmp;
+                        m_axis_tvalid_tmp   <= '1';
+                        axis_state          <= WRITE_R;
+
+                    when WRITE_R =>
+                        m_axis_tdata_tmp    <= 
+                        axis_state          <= SAMPLE_L;
+
+                end case;
+        end if;
+
+    end process;
+
+    left_channel: process(aclk, aresetn)
+    begin
+        if aresetn = '0' then
+            left_ch_state <= IDLE;
         
-        delay_in    => delay_in;
-        data_in     => m_axis_tdata_tmp;
-        data_in_valid => m_axis_tvalid_tmp;
+        elsif rising_edge(clk) and left_ready = '1' then
 
-        data_out    => y_out_delay;
+            case left_ch_state is
+                -- useless
+                -- when IDLE =>
+                -- Wait for ready signal
+                --      
 
-    )
+                when DELAY =>
+                -- signals in input of delay module are written
 
-    process(aclk, aresetn)
+                when MULTIPLY =>
+                    mul_res <= gain_in1 * y_out_delay;
+
+                when GAIN => 
+                    data_gain   <= shift_right(to_signed(mul_res), GAIN_LENGHT);
+
+
+                when SUM =>
+                    sum_res     <= data_gain + x_in3;
+                    left_valid  <= '1';
+
+
+            end case;
+
+        end if;
+
+    end process;
+
+
+    right_channel: process(aclk, aresetn)
     begin
         if aresetn = '0' then
             -- Reset procedure
-            s_axis_tready = '0'
-            -- set output at DELAY_INIT
-            -- flush the pipeline?
 
         elsif rising_edge(aclk) then
 
@@ -181,6 +285,11 @@ begin
                 -- of Delay if they are actually valid.
 
             end if;
-        end if;       
+        end if;
+    end process;  
+
+
+
+        
 
 end Behavioral;
