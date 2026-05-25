@@ -3,6 +3,7 @@
 -- Revision:
 -- Revision 0.1 - File Created
 -- Revision 0.2 - Skull of the module + Comments
+-- Revision 0.3 - Reboot
 -- 
 ----------------------------------------------------------------------------------
 
@@ -83,6 +84,16 @@ architecture Behavioral of reverb is
 
     --- Registers -----------------------------------------------------------------
 
+    delay_in_reg   : std_logic_vector(DELAY_LENGHT-1 downto 0);
+    y_n_tdata_int  : std_logic_vector(CHANNEL_LENGHT-1 downto 0) := DELAY_INIT;
+    y_n_tvalid_int : std_logic;
+
+    y_out_delayed  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+
+    x_in_left  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+    x_in_right : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+
+    
 
 
 begin
@@ -95,8 +106,8 @@ begin
         DELAY_INIT      => DELAY_INIT,
         LOG2_DELAY_INCR => LOG2_DELAY_INCR
     )
-    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => m_axis_tdata_tmp, 
-              data_in_valid => m_axis_tvalid_tmp, data_out => y_out_delay );
+    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in_reg, data_in => y_n_tdata_int, 
+              data_in_valid => y_n_tvalid_int, data_out => y_out_delayed );
 
     --- AXIS tvalid/tready control logic ------------------------------------------
     with axis_state select s_axis_tready <=
@@ -106,6 +117,9 @@ begin
     with axis_state select m_axis_tvalid <=
         '1' when WRITE_L | WRITE_R,
         '0' when SAMPLE_L | SAMPLE_R | PROCESSING;
+
+    m_axis_tdata <= y_n_tdata_int;
+    m_axis_tvalid <= y_n_tvalid_int;
 
     axis_fsm: process(aclk, aresetn)
     begin
@@ -126,7 +140,9 @@ begin
                 case axis_state is
                     when SAMPLE_L =>
                         if s_axis_tvalid = '1' then
-                            x_in1 <= s_axis_tdata;
+                            -- Sample input signals
+                            delay_in_reg <= delay_in;
+                            x_in_left <= s_axis_tdata;
 
                             left_ready <= '1';
 
@@ -143,11 +159,14 @@ begin
                         end if;
 
                     when PROCESSING =>
+                        if left_ready = '1' then
+                            axis_state <= WRITE_L;
+                        end if;
                         
-
                     when WRITE_L =>
                         m_axis_tdata_tmp    <= m_axis_tdata_tmp;
                         m_axis_tvalid_tmp   <= '1';
+
                         axis_state          <= WRITE_R;
 
                     when WRITE_R =>
@@ -157,6 +176,50 @@ begin
                 end case;
         end if;
 
+    end process;
+
+    left_ch : process(aclk, aresetn)
+        variable mul_res : unsigned(CHANNEL_LENGHT+GAIN_LENGHT-2 downto 0);
+        variable data_gain : unsigned(CHANNEL_LENGHT+GAIN_LENGHT-1 downto 0);
+        variable sum_res : 
+    begin
+
+        if aresetn = '0' then
+
+        elsif rising_edge(clk) then
+
+            mul_res := unsigned(gain_in * y_out_delayed);
+            data_gain := shift_right(mul_res, GAIN_LENGHT);
+            sum_res := unsigned(x_in_left) + data_gain;
+
+            -- check saturation
+            y_n_tdata_int <= std_logic_vector(sum_res);
+            y_n_tvalid_int <= '1';
+
+
+        end if;
+    end process;
+
+    right_ch : process(aclk, aresetn)
+        variable mul_res : unsigned(CHANNEL_LENGHT+GAIN_LENGHT-2 downto 0);
+        variable data_gain :
+        variable sum_res : 
+    begin
+
+        if aresetn = '0' then
+
+        elsif rising_edge(clk) then
+
+            mul_res := unsigned(gain_in * y_out_delayed);
+            data_gain := shift_right(mul_res, GAIN_LENGHT);
+            sum_res := unsigned(x_in_left) + data_gain;
+
+            -- check saturation
+            y_n_tdata_int <= std_logic_vector(sum_res);
+            y_n_tvalid_int <= '1';
+
+
+        end if;
     end process;
 
       
