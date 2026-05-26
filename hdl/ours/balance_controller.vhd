@@ -30,8 +30,8 @@ architecture Behavioral of balance_controller is
 
     component volume_multiplier is
         Generic (
-            TDATA_WIDTH      : positive := 24;
-            AMP_WIDTH       : positive := 5;
+            TDATA_WIDTH     : positive := 24;
+            VOLUME_WIDTH    : positive := 10;
             HIGHER_BOUND	: integer := 2**23-1;
             LOWER_BOUND		: integer := -2**23
         );
@@ -49,7 +49,7 @@ architecture Behavioral of balance_controller is
             m_axis_tlast	: out std_logic;
             m_axis_tready	: in std_logic;
             
-            amp_factor  : in std_logic_vector(AMP_WIDTH-1 downto 0)
+            amp_factor  : in std_logic_vector(VOLUME_WIDTH-1 downto 0)
         );
     end component;
 
@@ -60,16 +60,15 @@ architecture Behavioral of balance_controller is
 
     signal s_axis_tready_int    : std_logic := '0';
 
-    constant AMP_WIDTH          : integer := 5;
     constant base_interval 	    : integer := 2**(BALANCE_WIDTH - BALANCE_STEP_2 - 1);
-    signal amp_factor           : std_logic_vector(AMP_WIDTH-1 downto 0) := (others => '0');
+    signal amp_factor           : std_logic_vector(BALANCE_WIDTH-1 downto 0) := (others => '0');
 
 begin
 
     multiplier_inst: volume_multiplier
     generic map (
         TDATA_WIDTH => TDATA_WIDTH,
-        AMP_WIDTH => AMP_WIDTH,
+        VOLUME_WIDTH => BALANCE_WIDTH,
         HIGHER_BOUND => 2**23-1,
         LOWER_BOUND => -2**23
     )
@@ -115,7 +114,7 @@ begin
                 end if;
 
                 if (s_axis_tlast = '0' and v_amp_factor > 0) or (s_axis_tlast = '1' and v_amp_factor < 0) then
-                    amp_factor <= std_logic_vector(to_signed(-abs(v_amp_factor), AMP_WIDTH));
+                    amp_factor <= std_logic_vector(to_signed(-abs(v_amp_factor), BALANCE_WIDTH));
                 end if;
             end if;
         end if;
