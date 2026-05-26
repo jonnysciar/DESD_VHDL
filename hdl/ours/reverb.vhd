@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------- 
 -- Module Name: Reverb
 -- Revision:
--- Revision 1.0 alpha - Reboot v2 & Initial Release
+-- Revision 1.1 alpha - Reboot v2 & Initial Release
 -- 
 ----------------------------------------------------------------------------------
 
@@ -107,7 +107,7 @@ begin
               data_in_valid => delay_valid_r, data_out => delay_out_r );
 
     -------------------------------------------------------------------------------
-    -- AXI Handshake & Signals ----------------------------------------------------
+    --- AXI Handshake & Signals ---------------------------------------------------
     -------------------------------------------------------------------------------
 
     with state select s_axis_tready <=
@@ -170,12 +170,12 @@ begin
 
                 when COMPUTE =>
                     if enable_reverb = '1' then
-                        -- Left Channel Reverb Computation
+                        -- Left channel reverb computation
                         mul_res_l := signed("0" & gain_in) * signed(delay_out_l);
                         data_gain_l := resize(shift_right(mul_res_l, GAIN_LENGHT), CHANNEL_LENGHT+1);
                         sum_res_l := resize(x_l, CHANNEL_LENGHT+1) + data_gain_l;
                         
-                        -- Left Channel Saturation
+                        -- Left channel sat algorithm
                         if sum_res_l > HIGHER_BOUND then
                             y_l <= std_logic_vector(to_signed(HIGHER_BOUND, CHANNEL_LENGHT));
                         elsif sum_res_l < LOWER_BOUND then
@@ -184,12 +184,12 @@ begin
                             y_l <= std_logic_vector(resize(sum_res_l, CHANNEL_LENGHT));
                         end if;
                         
-                        -- Right Channel Reverb Computation
+                        -- Right channel reverb computation
                         mul_res_r := signed("0" & gain_in) * signed(delay_out_r);
                         data_gain_r := resize(shift_right(mul_res_r, GAIN_LENGHT), CHANNEL_LENGHT+1);
                         sum_res_r := resize(x_r, CHANNEL_LENGHT+1) + data_gain_r;
                         
-                        -- Right Channel Saturation
+                        -- Right channel sat algorithm
                         if sum_res_r > HIGHER_BOUND then
                             y_r <= std_logic_vector(to_signed(HIGHER_BOUND, CHANNEL_LENGHT));
                         elsif sum_res_r < LOWER_BOUND then
