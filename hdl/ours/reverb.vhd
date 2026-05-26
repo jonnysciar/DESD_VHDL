@@ -75,51 +75,53 @@ architecture Behavioral of reverb is
     type axis_fsm_t is (DISABLE, SAMPLE_L, SAMPLE_R, PROCESSING, WRITE_L, WRITE_R);
     signal axis_state : axis_fsm_t := SAMPLE_L;
 
-    type reverb_fsm_t is (IDLE, DELAY, MULTIPLY, GAIN, SUM, SAT);
-    signal left_ch_state : reverb_fsm_t := IDLE;
-    signal right_ch_state : reverb_fsm_t := IDLE;
-
-    --- Flags ---------------------------------------------------------------------
-    
+    -- type reverb_fsm_t is (IDLE, DELAY, MULTIPLY, GAIN, SUM, SAT);
+    -- signal left_ch_state : reverb_fsm_t := IDLE;
+    -- signal right_ch_state : reverb_fsm_t := IDLE;
 
     --- Registers -----------------------------------------------------------------
 
-    delay_in_reg   : std_logic_vector(DELAY_LENGHT-1 downto 0);
-    y_n_tdata_int  : std_logic_vector(CHANNEL_LENGHT-1 downto 0) := DELAY_INIT;
-    y_n_tvalid_int : std_logic;
+    s_axis_tready_int : std_logic;
+    m_axis_tvalid_int : std_logic;
+    m_axis_tdata_int : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
 
     y_out_delayed  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
 
-    x_in_left  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
-    x_in_right : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
-
-    
+    x_in_l  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+    x_in_r : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
 
 
 begin
 
-    --- Delay module instance -----------------------------------------------------
-    delay_inst: delay
+    --- Left instance -----------------------------------------------------
+    delay_left: delay
     generic map(
         CHANNEL_LENGHT  => CHANNEL_LENGHT,
         DELAY_LENGHT    => DELAY_LENGHT,
         DELAY_INIT      => DELAY_INIT,
         LOG2_DELAY_INCR => LOG2_DELAY_INCR
     )
-    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in_reg, data_in => y_n_tdata_int, 
-              data_in_valid => y_n_tvalid_int, data_out => y_out_delayed );
+    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => m_axis_tdata_int, 
+              data_in_valid => m_axis_tvalid_int, data_out => delay_out );
 
-    --- AXIS tvalid/tready control logic ------------------------------------------
-    with axis_state select s_axis_tready <=
+    delay_right: delay
+    generic map(
+        CHANNEL_LENGHT  => CHANNEL_LENGHT,
+        DELAY_LENGHT    => DELAY_LENGHT,
+        DELAY_INIT      => DELAY_INIT,
+        LOG2_DELAY_INCR => LOG2_DELAY_INCR
+    )
+    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => m_axis_tdata_int, 
+              data_in_valid => m_axis_tvalid_int, data_out => delay_out );
+
+    --- AXIS signals ---------------------------------------------------------------
+    with axis_state select s_axis_tready_int <=
         '1' when SAMPLE_L | SAMPLE_R,
         '0' when PROCESSING | WRITE_L | WRITE_R;
 
-    with axis_state select m_axis_tvalid <=
+    with axis_state select m_axis_tvalid_int <=
         '1' when WRITE_L | WRITE_R,
         '0' when SAMPLE_L | SAMPLE_R | PROCESSING;
-
-    m_axis_tdata <= y_n_tdata_int;
-    m_axis_tvalid <= y_n_tvalid_int;
 
     axis_fsm: process(aclk, aresetn)
     begin
@@ -130,6 +132,7 @@ begin
 
             if enable_reverb = '0' then
                 -- short circuit
+                -- do I check for handshake?
                 m_axis_tdata <= s_axis_tdata;
                 m_axis_tvalid <= s_axis_tvalid;
                 m_axis_tlast <= s_axis_tlast;
@@ -142,84 +145,63 @@ begin
                         if s_axis_tvalid = '1' then
                             -- Sample input signals
                             delay_in_reg <= delay_in;
-                            x_in_left <= s_axis_tdata;
+                            x_in_l <= s_axis_tdata;
 
-                            left_ready <= '1';
-
+                            -- Go to next state
                             axis_state <= SAMPLE_R;
                         end if;
                         
                     when SAMPLE_R =>
                         if s_axis_tvalid = '1' then
-                            x_in2 <= x_in1;
-                            x_in1 <= s_axis_tdata;
+                            -- Sample input signals
+                            delay_in_reg <= delay_in;
+                            x_in_r   <= s_axis_tdata;
 
+                            -- Go to next state
                             axis_state <= PROCESSING;
-                            left_ch_state <= DELAY;
                         end if;
 
                     when PROCESSING =>
-                        if left_ready = '1' then
-                            axis_state <= WRITE_L;
+                        
+                        mul_res_l       := gain_in * delay_out;
+                        data_gain_l     := shift_right(mul_res_l, GAIN_LENGHT);
+                        sum_res_l       := x_in_l + data_gain_l;
+
+                        -- Saturation algorithm
+                        if unsigned(sum_res) > (2**VOLUME_WIDTH - 1) - 2**(VOLUME_STEP_2 - 1) then
+                            
+                        else
+                        
                         end if;
+
+                        mul_res_r       := gain_in * delay_out_r;
+                        data_gain_r     := shift_right(mul_res_r, GAIN_LENGHT);
+                        sum_res_l       := x_in_r + data_gain_r;
+
+                        -- Saturation algorithm
+
                         
                     when WRITE_L =>
-                        m_axis_tdata_tmp    <= m_axis_tdata_tmp;
-                        m_axis_tvalid_tmp   <= '1';
+                        if m_axis_tready = '1' then
+                            m_axis_tdata_int    <= ;
+                            axis_state          <= WRITE_R;
 
-                        axis_state          <= WRITE_R;
+                            -- Go to next state
+                            axis_state          <= WRITE_R;
+                        end if;
 
                     when WRITE_R =>
-                        m_axis_tdata_tmp    <= 
-                        axis_state          <= SAMPLE_L;
+                        if m_axis_tready = '1' then
+                            m_axis_tdata_int    <= 
+
+                            -- Go to next state
+                            axis_state          <= SAMPLE_L;
+                        end if;
+                        
 
                 end case;
         end if;
 
-    end process;
-
-    left_ch : process(aclk, aresetn)
-        variable mul_res : unsigned(CHANNEL_LENGHT+GAIN_LENGHT-2 downto 0);
-        variable data_gain : unsigned(CHANNEL_LENGHT+GAIN_LENGHT-1 downto 0);
-        variable sum_res : 
-    begin
-
-        if aresetn = '0' then
-
-        elsif rising_edge(clk) then
-
-            mul_res := unsigned(gain_in * y_out_delayed);
-            data_gain := shift_right(mul_res, GAIN_LENGHT);
-            sum_res := unsigned(x_in_left) + data_gain;
-
-            -- check saturation
-            y_n_tdata_int <= std_logic_vector(sum_res);
-            y_n_tvalid_int <= '1';
-
-
-        end if;
-    end process;
-
-    right_ch : process(aclk, aresetn)
-        variable mul_res : unsigned(CHANNEL_LENGHT+GAIN_LENGHT-2 downto 0);
-        variable data_gain :
-        variable sum_res : 
-    begin
-
-        if aresetn = '0' then
-
-        elsif rising_edge(clk) then
-
-            mul_res := unsigned(gain_in * y_out_delayed);
-            data_gain := shift_right(mul_res, GAIN_LENGHT);
-            sum_res := unsigned(x_in_left) + data_gain;
-
-            -- check saturation
-            y_n_tdata_int <= std_logic_vector(sum_res);
-            y_n_tvalid_int <= '1';
-
-
-        end if;
     end process;
 
       
