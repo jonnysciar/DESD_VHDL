@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------- 
 -- Module Name: Reverb
 -- Revision:
--- Revision 0.4 - We are getting there...
+-- Revision 1.0 alpha - Reboot v2 & Initial Release
 -- 
 ----------------------------------------------------------------------------------
 
@@ -45,7 +45,8 @@ end reverb;
 
 architecture Behavioral of reverb is
 
-    --- Delay component declarations ----------------------------------------------
+    --- Delay component declaration -----------------------------------------------
+    -------------------------------------------------------------------------------
 
     component delay is      -- provided in the solution
         generic(
@@ -68,140 +69,21 @@ architecture Behavioral of reverb is
         );
     end component;
 
-    --- FSM states declarations ---------------------------------------------------
-    -------------------------------------------------------------------------------
+    type state_type is (WAIT_L, WAIT_R, COMPUTE, SEND_L, SEND_R);
+    signal state : state_type := WAIT_L;
 
-    type datapath_fsm_t is (IDLE, COMPUTE, SAT, DONE);
-    signal datapath_state : datapath_fsm_t := SAMPLE;
+    signal x_l, x_r : signed(CHANNEL_LENGHT-1 downto 0);
+    signal y_l, y_r : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
 
-    type output_fsm_t is (IDLE, WRITE_L, WRITE_R);
-    signal output_state : output_fsm_t := IDLE;
-
-    type input_fsm_t is (IDLE, SAMPLE_L, SAMPLE_R);
-    signal input_state  : input_fsm_t := IDLE;
-
-    --- Registers -----------------------------------------------------------------
-    -------------------------------------------------------------------------------
-
-    -- Signals to collect from s_axis bus
-    signal x_in_l : signed(CHANNEL_LENGHT-1 downto 0);
-    signal x_in_r : signed(CHANNEL_LENGHT-1 downto 0);
-    
-    -- Results coming out of Delay instances
-    signal delay_out_l : signed(CHANNEL_LENGHT-1 downto 0);
-    signal delay_out_r : signed(CHANNEL_LENGHT-1 downto 0);
-
-    -- Intermediate computation results
-    -- signal mul_res_l    : signed(CHANNEL_LENGHT+DELAY_LENGHT-2 downto 0);
-    -- signal mul_res_r    : signed(CHANNEL_LENGHT+DELAY_LENGHT-2 downto 0);
-
-    -- signal data_gain_l  : signed(CHANNEL_LENGHT-1 downto 0);
-    -- signal data_gain_r  : signed(CHANNEL_LENGHT-1 downto 0);
-
-    signal sum_res_l    : signed(CHANNEL_LENGHT downto 0);      -- It is 1 bit larger to account for overflow
-    signal sum_res_r    : signed(CHANNEL_LENGHT downto 0);
-
-    -- The following are used to save temporary results until commit on m_axis bus.
-    -- They are also stored for feedback into the Delay module.
-    --
-    -- **Note:** tvalid signals are also used by the output_logic to establish when to commit.
-
-    signal res_left_tvalid : std_logic;
-    signal res_left_tdata  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
-
-    signal res_right_tvalid : std_logic;
-    signal res_right_tdata  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+    signal delay_out_l : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+    signal delay_out_r : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+    signal delay_valid_l : std_logic;
+    signal delay_valid_r : std_logic;
 
 begin
 
     -------------------------------------------------------------------------------
-    --- Input Logic ---------------------------------------------------------------
-    -------------------------------------------------------------------------------
-
-    with input_state select s_axis_tready <=
-        '1' when SAMPLE_L | SAMPLE_R;
-        '0' when Others;
-
-    input_logic : process(aclk, aresetn)
-    begin
-        if aresetn = '0' then
-
-        elsif rising_edge(clk) then
-            
-            case input_state is
-                when IDLE =>
-                    -- should I wait for something??
-
-                when SAMPLE_L =>
-                    if s_axis_tvalid = '1' and s_axis_tlast = '0' then
-                        -- Save data
-                        x_in_l <= s_axis_tdata;
-                        -- Next state
-                        input_state <= SAMPLE_R;
-                    end if;
-
-                when SAMPLE_R =>
-                    if s_axis_tvalid = '1' s_axis_tlast = '1' then
-                        -- Save data
-                        x_in_r <= s_axis_tdata
-                        -- Next state
-                        input_state <= IDLE;
-                    end if;
-
-            end case;
-        end if;
-
-    end process;
-
-    -------------------------------------------------------------------------------
-    --- Output Logic --------------------------------------------------------------
-    -------------------------------------------------------------------------------
-
-    with output_state select m_axis_tvalid <=
-        '1' when WRITE_L | WRITE_R,
-        '0' when Others;
-
-    with output_state select m_axis_tlast <=
-        '1' when WRITE_R, 
-        '0' when Others;
-
-    with output_state select m_axis_tdata <=
-        res_left_tdata  when WRITE_L,
-        res_right_tdata when WRITE_R;
-        "-"             when Others;
-
-    output_logic : process(alck, aresetn)
-    begin
-        if aresetn = '0' then
-            output_state <= IDLE;
-
-        elsif rising_edge(aclk) then
-            case output_state is
-
-                when IDLE =>
-                    if res_left_tvalid = '1' then
-                        output_state <= WRITE_L;
-                    end if;
-                
-                when WRITE_L =>    
-                    -- Wait in this state until transaction goes through
-                    -- IS RES_RIGHT_TVALID NECESSARY?
-                    if m_axis_tready = '1' and res_right_tvalid = '1' then
-                        output_state <= WRITE_R;
-                    end if;
-
-                when WRITE_R =>
-                    -- Wait in this state until transaction goes through.
-                    -- Data is selected in dataflow.
-                    if m_axis_tready = '1' then
-                        output_state <= IDLE;
-                    end if;
-                end case;
-        end if;
-    end process;
-
-    -------------------------------------------------------------------------------
-    --- Datapath ------------------------------------------------------------------
+    --- Delay instances -----------------------------------------------------------
     -------------------------------------------------------------------------------
 
     delay_left: delay
@@ -211,8 +93,8 @@ begin
         DELAY_INIT      => DELAY_INIT,
         LOG2_DELAY_INCR => LOG2_DELAY_INCR
     )
-    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => res_left_tdata, 
-              data_in_valid => res_left_tvalid, data_out => delay_out_l );
+    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => y_l, 
+              data_in_valid => delay_valid_l, data_out => delay_out_l );
 
     delay_right: delay
     generic map(
@@ -221,55 +103,119 @@ begin
         DELAY_INIT      => DELAY_INIT,
         LOG2_DELAY_INCR => LOG2_DELAY_INCR
     )
-    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => res_right_tdata, 
-              data_in_valid => res_right_tvalid, data_out => delay_out_r );
+    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => y_r, 
+              data_in_valid => delay_valid_r, data_out => delay_out_r );
 
-    datapath_logic: process(aclk, aresetn)
-        variable mul_res_l : signed(CHANNEL_LENGHT+DELAY_LENGHT-2 downto 0);
-        variable data_gain_l  : signed(CHANNEL_LENGHT-1 downto 0);
-        -- variable sum_res_l    : signed(CHANNEL_LENGHT downto 0);
+    -------------------------------------------------------------------------------
+    -- AXI Handshake & Signals ----------------------------------------------------
+    -------------------------------------------------------------------------------
 
-        variable mul_res_r : signed(CHANNEL_LENGHT+DELAY_LENGHT-2 downto 0);
-        variable data_gain_r  : signed(CHANNEL_LENGHT-1 downto 0);        
+    with state select s_axis_tready <=
+        '1' when WAIT_L | WAIT_R,
+        '0' when Others;
 
+    with state select m_axis_tvalid <=
+        '1' when SEND_L | SEND_R,
+        '0' when Others;
+        
+    with state select m_axis_tdata <=
+        y_l when SEND_L,
+        y_r when SEND_R,
+        (others => '0') when Others;
+
+    with state select m_axis_tlast <=
+        '0' when SEND_L,
+        '1' when SEND_R,
+        '0' when Others;
+
+    -------------------------------------------------------------------------------
+    --- Synchronous process -------------------------------------------------------
+    -------------------------------------------------------------------------------
+
+    process(aclk, aresetn)
+        variable mul_res_l : signed(CHANNEL_LENGHT+GAIN_LENGHT downto 0);
+        variable data_gain_l : signed(CHANNEL_LENGHT downto 0);
+        variable sum_res_l : signed(CHANNEL_LENGHT downto 0);
+        
+        variable mul_res_r : signed(CHANNEL_LENGHT+GAIN_LENGHT downto 0);
+        variable data_gain_r : signed(CHANNEL_LENGHT downto 0);
+        variable sum_res_r : signed(CHANNEL_LENGHT downto 0);
     begin
         if aresetn = '0' then
-            datapath_state <= IDLE;
-            -- WHAT ELSE?
-
+            state <= WAIT_L;
+            -- Initialize signals
+            delay_valid_l <= '0';
+            delay_valid_r <= '0';
+            x_l <= (others => '0');
+            x_r <= (others => '0');
+            y_l <= (others => '0');
+            y_r <= (others => '0');
         elsif rising_edge(aclk) then
-
-            case datapath_state is
-
-                when COMPUTE =>
-                    mul_res_l   := signed(gain_in) * signed(delay_out_l);
-                    -- Shift and resize
-                    data_gain_l := resize(shift_right(mul_res_l, GAIN_LENGHT), CHANNEL_LENGHT);
-                    sum_res_l   <= x_in_l + data_gain_l;
-
-                    mul_res_r   := signed(gain_in) * signed(delay_out_r);
-                    -- Shift and resize
-                    data_gain_r := resize(shift_right(mul_res_r, GAIN_LENGHT), CHANNEL_LENGHT);
-                    sum_res_r   <= x_in_r + data_gain_r;
-
-                    datapath_state <= SAT;
-
-                when SAT =>
-
-                    if sum_res_l > HIGHER_BOUND then
-                        res_left_tdata <= HIGHER_BOUND;
-                    elsif sum_res_l < LOWER_NOUND then
-                        res_left_tdata <= LOWER_BOUND;
-                    else
-                        res_left_tdata <= resize(sum_res_l, CHANNEL_LENGHT);
+            -- Default pulse signals
+            delay_valid_l <= '0';
+            delay_valid_r <= '0';
+            
+            case state is
+                when WAIT_L =>
+                    if s_axis_tvalid = '1' and s_axis_tlast = '0' then
+                        x_l <= signed(s_axis_tdata);
+                        state <= WAIT_R;
+                    end if;
+                    
+                when WAIT_R =>
+                    if s_axis_tvalid = '1' and s_axis_tlast = '1' then
+                        x_r <= signed(s_axis_tdata);
+                        state <= COMPUTE;
                     end if;
 
-                    datapath_state <= DONE;
-                
-                when DONE =>
-
+                when COMPUTE =>
+                    if enable_reverb = '1' then
+                        -- Left Channel Reverb Computation
+                        mul_res_l := signed("0" & gain_in) * signed(delay_out_l);
+                        data_gain_l := resize(shift_right(mul_res_l, GAIN_LENGHT), CHANNEL_LENGHT+1);
+                        sum_res_l := resize(x_l, CHANNEL_LENGHT+1) + data_gain_l;
+                        
+                        -- Left Channel Saturation
+                        if sum_res_l > HIGHER_BOUND then
+                            y_l <= std_logic_vector(to_signed(HIGHER_BOUND, CHANNEL_LENGHT));
+                        elsif sum_res_l < LOWER_BOUND then
+                            y_l <= std_logic_vector(to_signed(LOWER_BOUND, CHANNEL_LENGHT));
+                        else
+                            y_l <= std_logic_vector(resize(sum_res_l, CHANNEL_LENGHT));
+                        end if;
+                        
+                        -- Right Channel Reverb Computation
+                        mul_res_r := signed("0" & gain_in) * signed(delay_out_r);
+                        data_gain_r := resize(shift_right(mul_res_r, GAIN_LENGHT), CHANNEL_LENGHT+1);
+                        sum_res_r := resize(x_r, CHANNEL_LENGHT+1) + data_gain_r;
+                        
+                        -- Right Channel Saturation
+                        if sum_res_r > HIGHER_BOUND then
+                            y_r <= std_logic_vector(to_signed(HIGHER_BOUND, CHANNEL_LENGHT));
+                        elsif sum_res_r < LOWER_BOUND then
+                            y_r <= std_logic_vector(to_signed(LOWER_BOUND, CHANNEL_LENGHT));
+                        else
+                            y_r <= std_logic_vector(resize(sum_res_r, CHANNEL_LENGHT));
+                        end if;
+                    else
+                        -- Bypass Effect
+                        y_l <= std_logic_vector(x_l);
+                        y_r <= std_logic_vector(x_r);
+                    end if;
                     
-
+                    state <= SEND_L;
+                    
+                when SEND_L =>
+                    if m_axis_tready = '1' then
+                        delay_valid_l <= '1';
+                        state <= SEND_R;
+                    end if;
+                    
+                when SEND_R =>
+                    if m_axis_tready = '1' then
+                        delay_valid_r <= '1';
+                        state <= WAIT_L;
+                    end if;
             end case;
         end if;
     end process;
