@@ -32,8 +32,8 @@ architecture Behavioral of volume_controller is
 
     component volume_multiplier is
         Generic (
-            TDATA_WIDTH      : positive := 24;
-            AMP_WIDTH       : positive := 5;
+            TDATA_WIDTH     : positive := 24;
+            VOLUME_WIDTH    : positive := 10;
             HIGHER_BOUND	: integer := 2**23-1;
             LOWER_BOUND		: integer := -2**23
         );
@@ -51,11 +51,10 @@ architecture Behavioral of volume_controller is
             m_axis_tlast	: out std_logic;
             m_axis_tready	: in std_logic;
             
-            amp_factor  : in std_logic_vector(AMP_WIDTH-1 downto 0)
+            amp_factor  : in std_logic_vector(VOLUME_WIDTH-1 downto 0)
         );
     end component;
 
-    constant AMP_WIDTH      : integer := 5;
     constant base_interval 	: integer := 2**(VOLUME_WIDTH - VOLUME_STEP_2 - 1);
 
     signal m_axis_tvalid_mult   : std_logic := '0';
@@ -63,7 +62,7 @@ architecture Behavioral of volume_controller is
     signal m_axis_tlast_mult    : std_logic := '0';
     signal m_axis_tready_mult   : std_logic := '0';
 
-    signal amp_factor       : std_logic_vector(AMP_WIDTH-1 downto 0) := (others => '0');
+    signal amp_factor       : std_logic_vector(VOLUME_WIDTH-1 downto 0) := (others => '0');
 
 
 begin
@@ -71,7 +70,7 @@ begin
     multiplier_inst: volume_multiplier
     generic map (
         TDATA_WIDTH => TDATA_WIDTH,
-        AMP_WIDTH => AMP_WIDTH,
+        VOLUME_WIDTH => VOLUME_WIDTH,
         HIGHER_BOUND => HIGHER_BOUND,
         LOWER_BOUND => LOWER_BOUND
     )
@@ -108,9 +107,9 @@ begin
                 m_axis_tlast_mult <= s_axis_tlast;
 
                 if unsigned(volume) > (2**VOLUME_WIDTH - 1) - 2**(VOLUME_STEP_2 - 1) then
-                    amp_factor <= std_logic_vector(to_signed(2**(VOLUME_WIDTH - VOLUME_STEP_2) - base_interval, AMP_WIDTH));
+                    amp_factor <= std_logic_vector(to_signed(2**(VOLUME_WIDTH - VOLUME_STEP_2) - base_interval, VOLUME_WIDTH));
                 else
-                    amp_factor <= std_logic_vector(to_signed(to_integer(shift_right(unsigned(volume) + 2**(VOLUME_STEP_2 - 1), VOLUME_STEP_2)) - base_interval, AMP_WIDTH));
+                    amp_factor <= std_logic_vector(to_signed(to_integer(shift_right(unsigned(volume) + 2**(VOLUME_STEP_2 - 1), VOLUME_STEP_2)) - base_interval, VOLUME_WIDTH));
                 end if;
             end if;
         end if;
