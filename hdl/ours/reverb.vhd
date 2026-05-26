@@ -72,28 +72,83 @@ architecture Behavioral of reverb is
 
     --- FSM states declarations ---------------------------------------------------
 
-    type axis_fsm_t is (DISABLE, SAMPLE_L, SAMPLE_R, PROCESSING, WRITE_L, WRITE_R);
-    signal axis_state : axis_fsm_t := SAMPLE_L;
+    type channel_fsm_t is (SAMPLE, COMPUTE, DONE);
+    signal left_ch_state : channel_fsm_t := SAMPLE;
+    signal right_ch_state : channel_fsm_t := SAMPLE;
 
-    -- type reverb_fsm_t is (IDLE, DELAY, MULTIPLY, GAIN, SUM, SAT);
-    -- signal left_ch_state : reverb_fsm_t := IDLE;
-    -- signal right_ch_state : reverb_fsm_t := IDLE;
+    type output_fsm_t is (IDLE, WRITE_L, WRITE_R);
+    signal output_state : output_fsm_t := SAMPLE_L;
 
     --- Registers -----------------------------------------------------------------
+    -------------------------------------------------------------------------------
 
-    s_axis_tready_int : std_logic;
-    m_axis_tvalid_int : std_logic;
-    m_axis_tdata_int : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
 
-    y_out_delayed  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+    -- The following are used to save temporary results until commit on m_axis bus.
+    -- They are also stored for feedback into the Delay module.
+    --
+    -- **Note:** tvalid signals are also used by the output_logic to establish when to commit.
 
-    x_in_l  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
-    x_in_r : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+    signal res_left_tvalid : std_logic;
+    signal res_left_tdata  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
 
+    signal res_right_tvalid : std_logic;
+    signal res_right_tdata  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
 
 begin
 
-    --- Left instance -----------------------------------------------------
+    -------------------------------------------------------------------------------
+    --- Output Logic --------------------------------------------------------------
+
+    with output_state select m_axis_tvalid <=
+        '1' when WRITE_L | WRITE_R,
+        '0' when Others;
+
+    with output_state select m_axis_tlast <=
+        '1' when WRITE_R, 
+        '0' when Others;
+
+    with output_state select m_axis_tdata <=
+        res_left_tdata  when WRITE_L,
+        res_right_tdata when WRITE_R;
+        "-"             when Others;
+
+    output_logic : process(alck, aresetn)
+    begin
+        if aresetn = '0' then
+            output_state <= IDLE;
+
+        elsif rising_edge(alck) then
+            case output_state is
+
+                when IDLE =>
+                    if res_left_tvalid = '1' then
+                        output_state <= WRITE_L;
+                    end if;
+                
+                when WRITE_L =>    
+                    -- Wait in this state until transaction goes through
+                    if m_axis_tready = '1' and res_right_tvalid = '1' then
+                        output_state <= WRITE_R;
+                    end if;
+
+                when WRITE_R =>
+                    -- Wait in this state until transaction goes through
+                    if m_axis_tready = '1' then
+                        output_state <= IDLE;
+                    end if;
+        end if;
+    end process;
+
+    -------------------------------------------------------------------------------
+    -------------------------------------------------------------------------------
+    ----                        FIN QUA OK!
+    -------------------------------------------------------------------------------
+    -------------------------------------------------------------------------------
+
+    
+    -------------------------------------------------------------------------------
+    --- Left instance -------------------------------------------------------------
+
     delay_left: delay
     generic map(
         CHANNEL_LENGHT  => CHANNEL_LENGHT,
@@ -103,6 +158,16 @@ begin
     )
     port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => m_axis_tdata_int, 
               data_in_valid => m_axis_tvalid_int, data_out => delay_out );
+
+    left_instance: process(aclk, aresetn)
+    begin
+        if aresetn = '0' then
+
+        elsif 
+
+        end if;
+
+    end process;
 
     delay_right: delay
     generic map(
