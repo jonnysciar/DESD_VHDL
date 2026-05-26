@@ -38,7 +38,7 @@ architecture rtl of reverb_tb is
             m_axis_tlast	: out std_logic;
             m_axis_tready	: in std_logic
         );
-    end reverb;
+    end component;
 
     component reverb_1 is
     generic(
@@ -71,7 +71,7 @@ architecture rtl of reverb_tb is
             m_axis_tlast	: out std_logic;
             m_axis_tready	: in std_logic
         );
-    end reverb_1;
+    end component;
 
     constant LOG2_DELAY_INCR : integer :=1;
     constant CHANNEL_LENGHT  : integer := 24;
@@ -171,14 +171,14 @@ begin
     delay_in <= std_logic_vector(to_unsigned(2**9, DELAY_LENGHT));
     gain_in <= std_logic_vector(to_unsigned(2**9, GAIN_LENGHT));
 
+    s_axis_tlast <= not s_axis_tlast after 10 ns;
+    
     process
     begin
 
         wait until rising_edge(aclk);
         s_axis_tvalid <= '1';
         s_axis_tdata <= std_logic_vector(to_unsigned(2**20, CHANNEL_LENGHT));
-        s_axis_tlast <= not s_axis_tlast;
-        wait;
 
     end process;
 
