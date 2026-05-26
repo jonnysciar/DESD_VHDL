@@ -1,9 +1,7 @@
 ---------------------------------------------------------------------------------- 
 -- Module Name: Reverb
 -- Revision:
--- Revision 0.1 - File Created
--- Revision 0.2 - Skull of the module + Comments
--- Revision 0.3 - Reboot
+-- Revision 0.4 - We are getting there...
 -- 
 ----------------------------------------------------------------------------------
 
@@ -73,27 +71,22 @@ architecture Behavioral of reverb is
     --- FSM states declarations ---------------------------------------------------
     -------------------------------------------------------------------------------
 
-    type channel_fsm_t is (SAMPLE, COMPUTE, SATnDONE);
-    signal left_ch_state : channel_fsm_t := SAMPLE;
-    signal right_ch_state : channel_fsm_t := SAMPLE;
+    type datapath_fsm_t is (IDLE, COMPUTE, SAT, DONE);
+    signal datapath_state : datapath_fsm_t := SAMPLE;
 
     type output_fsm_t is (IDLE, WRITE_L, WRITE_R);
-    signal output_state : output_fsm_t := SAMPLE_L;
+    signal output_state : output_fsm_t := IDLE;
+
+    type input_fsm_t is (IDLE, SAMPLE_L, SAMPLE_R);
+    signal input_state  : input_fsm_t := IDLE;
 
     --- Registers -----------------------------------------------------------------
     -------------------------------------------------------------------------------
 
-    -- The following are used to save temporary results until commit on m_axis bus.
-    -- They are also stored for feedback into the Delay module.
-    --
-    -- **Note:** tvalid signals are also used by the output_logic to establish when to commit.
-
-    signal res_left_tvalid : std_logic;
-    signal res_left_tdata  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
-
-    signal res_right_tvalid : std_logic;
-    signal res_right_tdata  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
-
+    -- Signals to collect from s_axis bus
+    signal x_in_l : signed(CHANNEL_LENGHT-1 downto 0);
+    signal x_in_r : signed(CHANNEL_LENGHT-1 downto 0);
+    
     -- Results coming out of Delay instances
     signal delay_out_l : signed(CHANNEL_LENGHT-1 downto 0);
     signal delay_out_r : signed(CHANNEL_LENGHT-1 downto 0);
@@ -108,7 +101,57 @@ architecture Behavioral of reverb is
     signal sum_res_l    : signed(CHANNEL_LENGHT downto 0);      -- It is 1 bit larger to account for overflow
     signal sum_res_r    : signed(CHANNEL_LENGHT downto 0);
 
+    -- The following are used to save temporary results until commit on m_axis bus.
+    -- They are also stored for feedback into the Delay module.
+    --
+    -- **Note:** tvalid signals are also used by the output_logic to establish when to commit.
+
+    signal res_left_tvalid : std_logic;
+    signal res_left_tdata  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+
+    signal res_right_tvalid : std_logic;
+    signal res_right_tdata  : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+
 begin
+
+    -------------------------------------------------------------------------------
+    --- Input Logic ---------------------------------------------------------------
+    -------------------------------------------------------------------------------
+
+    with input_state select s_axis_tready <=
+        '1' when SAMPLE_L | SAMPLE_R;
+        '0' when Others;
+
+    input_logic : process(aclk, aresetn)
+    begin
+        if aresetn = '0' then
+
+        elsif rising_edge(clk) then
+            
+            case input_state is
+                when IDLE =>
+                    -- should I wait for something??
+
+                when SAMPLE_L =>
+                    if s_axis_tvalid = '1' and s_axis_tlast = '0' then
+                        -- Save data
+                        x_in_l <= s_axis_tdata;
+                        -- Next state
+                        input_state <= SAMPLE_R;
+                    end if;
+
+                when SAMPLE_R =>
+                    if s_axis_tvalid = '1' s_axis_tlast = '1' then
+                        -- Save data
+                        x_in_r <= s_axis_tdata
+                        -- Next state
+                        input_state <= IDLE;
+                    end if;
+
+            end case;
+        end if;
+
+    end process;
 
     -------------------------------------------------------------------------------
     --- Output Logic --------------------------------------------------------------
@@ -142,12 +185,14 @@ begin
                 
                 when WRITE_L =>    
                     -- Wait in this state until transaction goes through
+                    -- IS RES_RIGHT_TVALID NECESSARY?
                     if m_axis_tready = '1' and res_right_tvalid = '1' then
                         output_state <= WRITE_R;
                     end if;
 
                 when WRITE_R =>
-                    -- Wait in this state until transaction goes through
+                    -- Wait in this state until transaction goes through.
+                    -- Data is selected in dataflow.
                     if m_axis_tready = '1' then
                         output_state <= IDLE;
                     end if;
@@ -156,16 +201,8 @@ begin
     end process;
 
     -------------------------------------------------------------------------------
-    --- Left Channel Logic --------------------------------------------------------
+    --- Datapath ------------------------------------------------------------------
     -------------------------------------------------------------------------------
-
-    with left_ch_state select s_axis_tready <=
-        '1' when SAMPLE,
-        '0' when Others;
-
-    with left_ch_state select res_left_tvalid <=
-        '1' when SATnDONE;
-        '0' when Others;
 
     delay_left: delay
     generic map(
@@ -177,32 +214,47 @@ begin
     port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => res_left_tdata, 
               data_in_valid => res_left_tvalid, data_out => delay_out_l );
 
-    left_instance: process(aclk, aresetn)
+    delay_right: delay
+    generic map(
+        CHANNEL_LENGHT  => CHANNEL_LENGHT,
+        DELAY_LENGHT    => DELAY_LENGHT,
+        DELAY_INIT      => DELAY_INIT,
+        LOG2_DELAY_INCR => LOG2_DELAY_INCR
+    )
+    port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => res_right_tdata, 
+              data_in_valid => res_right_tvalid, data_out => delay_out_r );
+
+    datapath_logic: process(aclk, aresetn)
         variable mul_res_l : signed(CHANNEL_LENGHT+DELAY_LENGHT-2 downto 0);
         variable data_gain_l  : signed(CHANNEL_LENGHT-1 downto 0);
-        variable sum_res_l    : signed(CHANNEL_LENGHT downto 0);        
+        -- variable sum_res_l    : signed(CHANNEL_LENGHT downto 0);
+
+        variable mul_res_r : signed(CHANNEL_LENGHT+DELAY_LENGHT-2 downto 0);
+        variable data_gain_r  : signed(CHANNEL_LENGHT-1 downto 0);        
 
     begin
         if aresetn = '0' then
-            left_ch_state <= SAMPLE;
+            datapath_state <= IDLE;
             -- WHAT ELSE?
 
         elsif rising_edge(aclk) then
 
-            case left_ch_state is
-                when SAMPLE =>
-                    if s_axis_tvalid = '1' and s_axis_tlast = '0' then
-                        x_in_l <= s_axis_tdata;
-                        left_ch_state <= COMPUTE;
-                    end if;
+            case datapath_state is
 
                 when COMPUTE =>
                     mul_res_l   := signed(gain_in) * signed(delay_out_l);
                     -- Shift and resize
                     data_gain_l := resize(shift_right(mul_res_l, GAIN_LENGHT), CHANNEL_LENGHT);
-                    sum_res_l   := x_in_l + data_gain_l;
+                    sum_res_l   <= x_in_l + data_gain_l;
 
-                when SATnDONE =>
+                    mul_res_r   := signed(gain_in) * signed(delay_out_r);
+                    -- Shift and resize
+                    data_gain_r := resize(shift_right(mul_res_r, GAIN_LENGHT), CHANNEL_LENGHT);
+                    sum_res_r   <= x_in_r + data_gain_r;
+
+                    datapath_state <= SAT;
+
+                when SAT =>
 
                     if sum_res_l > HIGHER_BOUND then
                         res_left_tdata <= HIGHER_BOUND;
@@ -212,15 +264,14 @@ begin
                         res_left_tdata <= resize(sum_res_l, CHANNEL_LENGHT);
                     end if;
 
+                    datapath_state <= DONE;
+                
+                when DONE =>
+
+                    
+
             end case;
         end if;
     end process;
 
-    -------------------------------------------------------------------------------
-    --- Right Channel Logic -------------------------------------------------------
-    -------------------------------------------------------------------------------
-
-    
-
-      
 end Behavioral;
