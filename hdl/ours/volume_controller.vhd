@@ -55,13 +55,14 @@ architecture Behavioral of volume_controller is
         );
     end component;
 
-    constant base_interval 	: integer := 2**(VOLUME_WIDTH - VOLUME_STEP_2 - 1);
-
     signal m_axis_tvalid_mult   : std_logic := '0';
     signal m_axis_tdata_mult    : std_logic_vector(TDATA_WIDTH-1 downto 0);
     signal m_axis_tlast_mult    : std_logic := '0';
     signal m_axis_tready_mult   : std_logic := '0';
 
+    signal s_axis_tready_int    : std_logic := '0';
+
+    constant base_interval 	: integer := 2**(VOLUME_WIDTH - VOLUME_STEP_2 - 1);
     signal amp_factor       : std_logic_vector(VOLUME_WIDTH-1 downto 0) := (others => '0');
 
 
@@ -91,17 +92,19 @@ begin
         amp_factor => amp_factor
     );
 
-    s_axis_tready <= m_axis_tready_mult;
+    s_axis_tready <= s_axis_tready_int;
 
     process(aclk, aresetn)
     begin
         if aresetn = '0' then
             amp_factor <= (others => '0');
+            s_axis_tready_int <= '0';
         elsif rising_edge(aclk) then
+            s_axis_tready_int <= '1';
             m_axis_tvalid_mult <= '0';
             amp_factor <= (others => '0');
-
-            if s_axis_tvalid = '1' and m_axis_tready_mult = '1' then
+            
+            if s_axis_tvalid = '1' and s_axis_tready_int = '1' and m_axis_tready_mult = '1' then
                 m_axis_tvalid_mult <= s_axis_tvalid;
                 m_axis_tdata_mult <= s_axis_tdata;
                 m_axis_tlast_mult <= s_axis_tlast;
