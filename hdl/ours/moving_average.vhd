@@ -9,7 +9,7 @@ use IEEE.NUMERIC_STD.ALL;
 -- Se TLAST = '0' si tratta del canale sinistro
 -- Se TLAST = '1' si tratta del canale destro
 
-entity moving_average_1 is
+entity moving_average is
     Generic (
     LOG2_LEN : POSITIVE := 5;          --Specifica su quanti campioni faccio la media
     CHANNEL_LENGHT : integer := 24;    --Quanti bit contiene una cella della FIFO
@@ -35,9 +35,9 @@ entity moving_average_1 is
      -------------------------------------------------------
      
     );
-end moving_average_1;
+end moving_average;
 
-architecture Behavioral of moving_average_1 is
+architecture Behavioral of moving_average is
 
     type state_moving_average_type is (WAIT_INPUT_L,
                                        WAIT_INPUT_R,
