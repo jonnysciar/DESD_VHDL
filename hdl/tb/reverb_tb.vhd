@@ -38,10 +38,11 @@ architecture rtl of reverb_tb is
             m_axis_tlast	: out std_logic;
             m_axis_tready	: in std_logic
         );
-    end reverb;
+    end component;
 
     component reverb_1 is
-    generic(
+    generic
+    (
         LOG2_DELAY_INCR : integer :=1;              -- CONSTANT DO NOT TOUCH
         CHANNEL_LENGHT  : integer := 24;            -- 3 byte for audio
         DELAY_LENGHT  : integer := 10;              -- JSTK axis dimension
@@ -52,26 +53,26 @@ architecture rtl of reverb_tb is
         LOWER_BOUND		: integer := -2**23		    -- Inclusive (min value of TDATA at 24 bit signed)
     );
     Port (
-            aclk			: in std_logic;
-            aresetn			: in std_logic;
-            
-            enable_reverb   : in std_logic;
+        aclk			: in std_logic;
+        aresetn			: in std_logic;
+        
+        enable_reverb   : in std_logic;
 
-            delay_in        : in std_logic_vector(DELAY_LENGHT-1 downto 0);
+        delay_in        : in std_logic_vector(DELAY_LENGHT-1 downto 0);
 
-            gain_in         : in std_logic_vector(GAIN_LENGHT-1 downto 0);
-    
-            s_axis_tvalid	: in std_logic;
-            s_axis_tdata	: in std_logic_vector(CHANNEL_LENGHT-1 downto 0);
-            s_axis_tlast    : in std_logic;
-            s_axis_tready	: out std_logic;
-    
-            m_axis_tvalid	: out std_logic;
-            m_axis_tdata	: out std_logic_vector(CHANNEL_LENGHT-1 downto 0);
-            m_axis_tlast	: out std_logic;
-            m_axis_tready	: in std_logic
+        gain_in         : in std_logic_vector(GAIN_LENGHT-1 downto 0);
+
+        s_axis_tvalid	: in std_logic;
+        s_axis_tdata	: in std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+        s_axis_tlast    : in std_logic;
+        s_axis_tready	: out std_logic;
+
+        m_axis_tvalid	: out std_logic;
+        m_axis_tdata	: out std_logic_vector(CHANNEL_LENGHT-1 downto 0);
+        m_axis_tlast	: out std_logic;
+        m_axis_tready	: in std_logic
         );
-    end reverb_1;
+    end component;
 
     constant LOG2_DELAY_INCR : integer :=1;
     constant CHANNEL_LENGHT  : integer := 24;

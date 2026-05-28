@@ -2,6 +2,7 @@
 -- Module Name: Reverb
 -- Revision:
 -- Revision 1.1 alpha - Reboot v2 & Initial Release
+-- Revision 1.2 alpha - Split Compute path in search of better timings...
 -- 
 ----------------------------------------------------------------------------------
 
@@ -69,7 +70,7 @@ architecture Behavioral of reverb is
         );
     end component;
 
-    type state_type is (WAIT_L, WAIT_R, COMPUTE, SEND_L, SEND_R);
+    type state_type is (WAIT_L, WAIT_R, COMPUTE_1, COMPUTE_2, SEND_L, SEND_R);
     signal state : state_type := WAIT_L;
 
     signal x_l, x_r : signed(CHANNEL_LENGHT-1 downto 0);
@@ -165,14 +166,24 @@ begin
                 when WAIT_R =>
                     if s_axis_tvalid = '1' and s_axis_tlast = '1' then
                         x_r <= signed(s_axis_tdata);
-                        state <= COMPUTE;
+                        state <= COMPUTE_1;
                     end if;
 
-                when COMPUTE =>
+                when COMPUTE_1 =>
                     if enable_reverb = '1' then
-                        -- Left channel reverb computation
+                        -- Left channel partial compute
                         mul_res_l := signed("0" & gain_in) * signed(delay_out_l);
                         data_gain_l := resize(shift_right(mul_res_l, GAIN_LENGHT), CHANNEL_LENGHT+1);
+
+                        -- Right channel partial compute
+                        mul_res_r := signed("0" & gain_in) * signed(delay_out_r);
+                        data_gain_r := resize(shift_right(mul_res_r, GAIN_LENGHT), CHANNEL_LENGHT+1);
+                    end if;
+                    state <= COMPUTE_2;
+
+                when COMPUTE_2 =>
+                    if enable_reverb = '1' then
+                        
                         sum_res_l := resize(x_l, CHANNEL_LENGHT+1) + data_gain_l;
                         
                         -- Left channel sat algorithm
@@ -184,9 +195,6 @@ begin
                             y_l <= std_logic_vector(resize(sum_res_l, CHANNEL_LENGHT));
                         end if;
                         
-                        -- Right channel reverb computation
-                        mul_res_r := signed("0" & gain_in) * signed(delay_out_r);
-                        data_gain_r := resize(shift_right(mul_res_r, GAIN_LENGHT), CHANNEL_LENGHT+1);
                         sum_res_r := resize(x_r, CHANNEL_LENGHT+1) + data_gain_r;
                         
                         -- Right channel sat algorithm
