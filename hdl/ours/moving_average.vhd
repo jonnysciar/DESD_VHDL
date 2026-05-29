@@ -95,78 +95,78 @@ begin
     out_data_L <= std_logic_vector(sum_L(CHANNEL_LENGHT+LOG2_LEN-1 downto LOG2_LEN));
     out_data_R <= std_logic_vector(sum_R(CHANNEL_LENGHT+LOG2_LEN-1 downto LOG2_LEN));
     
-    moving_average_process : process (aclk)
+    moving_average_process : process (aclk, aresetn)
     begin
-        if rising_edge (aclk) then
-            if aresetn = '0' then
-                device_state <= WAIT_INPUT_L;
-                -- Inizializzo l'indice
+        if aresetn = '0' then
+            device_state <= WAIT_INPUT_L;
+            -- Inizializzo l'indice
+            write_index <= 0;
+            -- Inizializzo le somme parziali e i pre-fetch
+            sum_L <= (others => '0');
+            sum_R <= (others => '0');
+            old_L <= (others => '0');
+            old_R <= (others => '0');
+            -- Inizializzo le FIFO
+            FIFO_L <= (others => (others => '0'));
+            FIFO_R <= (others => (others => '0'));
+        
+        elsif rising_edge (aclk) then
+            if enable_filter = '0' then
+                device_state <= OFF;
                 write_index <= 0;
-                -- Inizializzo le somme parziali e i pre-fetch
                 sum_L <= (others => '0');
                 sum_R <= (others => '0');
                 old_L <= (others => '0');
                 old_R <= (others => '0');
-                -- Inizializzo le FIFO
                 FIFO_L <= (others => (others => '0'));
                 FIFO_R <= (others => (others => '0'));
-            else
-                if enable_filter = '0' then
-                    device_state <= OFF;
-                    write_index <= 0;
-                    sum_L <= (others => '0');
-                    sum_R <= (others => '0');
-                    old_L <= (others => '0');
-                    old_R <= (others => '0');
-                    FIFO_L <= (others => (others => '0'));
-                    FIFO_R <= (others => (others => '0'));
-                else    -- enable_filter = '1'
-                    case device_state is
-                    
-                        when OFF =>
+            else    -- enable_filter = '1'
+                case device_state is
+                
+                    when OFF =>
+                        device_state <= WAIT_INPUT_L;
+                        
+                    when WAIT_INPUT_L =>
+                        if s_axis_tvalid = '1' and s_axis_tlast = '0' then
+                            FIFO_L(write_index) <= signed(s_axis_tdata);
+                            sum_L <= sum_L + signed(s_axis_tdata) - old_L;
+                            device_state <= WAIT_INPUT_R;  
+                        end if;
+                        
+                    when WAIT_INPUT_R =>
+                        if s_axis_tvalid = '1' and s_axis_tlast = '1' then
+                            FIFO_R(write_index) <= signed(s_axis_tdata);
+                            sum_R <= sum_R + signed(s_axis_tdata) - old_R;
+                            
+                            -- Il write index è comune, mi basta fare un singolo check
+                            if write_index = MEMORY_DEPTH-1 then
+                                write_index <= 0;
+                                -- Salvo il prossimo dato da scartare (migliora le performance)
+                                old_L <= FIFO_L(0);
+                                old_R <= FIFO_R(0);
+                            else
+                                write_index <= write_index + 1;
+                                old_L <= FIFO_L(write_index + 1);
+                                old_R <= FIFO_R(write_index + 1);
+                            end if;
+                            
+                            device_state <= SEND_OUTPUT_L;
+                        end if;
+                        
+                    when SEND_OUTPUT_L =>
+                        if m_axis_tready = '1' then
+                            device_state <= SEND_OUTPUT_R;
+                        end if;
+                        
+                    when SEND_OUTPUT_R =>
+                        if m_axis_tready = '1' then
                             device_state <= WAIT_INPUT_L;
-                            
-                        when WAIT_INPUT_L =>
-                            if s_axis_tvalid = '1' then
-                                FIFO_L(write_index) <= signed(s_axis_tdata);
-                                sum_L <= sum_L + signed(s_axis_tdata) - old_L;
-                                device_state <= WAIT_INPUT_R;  
-                            end if;
-                            
-                        when WAIT_INPUT_R =>
-                            if s_axis_tvalid = '1' then
-                                FIFO_R(write_index) <= signed(s_axis_tdata);
-                                sum_R <= sum_R + signed(s_axis_tdata) - old_R;
-                                
-                                -- Il write index è comune, mi basta fare un singolo check
-                                if write_index = MEMORY_DEPTH-1 then
-                                    write_index <= 0;
-                                    -- Salvo il prossimo dato da scartare (migliora le performance)
-                                    old_L <= FIFO_L(0);
-                                    old_R <= FIFO_R(0);
-                                else
-                                    write_index <= write_index + 1;
-                                    old_L <= FIFO_L(write_index + 1);
-                                    old_R <= FIFO_R(write_index + 1);
-                                end if;
-                                
-                                device_state <= SEND_OUTPUT_L;
-                            end if;
-                            
-                        when SEND_OUTPUT_L =>
-                            if m_axis_tready = '1' then
-                                device_state <= SEND_OUTPUT_R;
-                            end if;
-                            
-                        when SEND_OUTPUT_R =>
-                            if m_axis_tready = '1' then
-                                device_state <= WAIT_INPUT_L;
-                            end if;
-                            
-                    end case;
-                end if;
+                        end if;
+                        
+                end case;
             end if;
         end if;
     end process;
 
 end Behavioral;
+

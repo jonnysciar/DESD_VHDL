@@ -93,20 +93,31 @@ begin
                     -- Average the two channels (divide by 2)
                     var_magnitude := shift_right(var_magnitude, 1);
 
+<<<<<<< Updated upstream
                     -- Select only the MSB (performs averaging + resizing)
                     var_leds  := std_logic_vector(var_magnitude(CHANNEL_LENGHT - 1 downto CHANNEL_LENGHT - NUM_LEDS));
+=======
+                    -- Extract the top NUM_LEDS bits (excluding the sign bit at CHANNEL_LENGHT - 1)
+                    var_leds  := std_logic_vector(var_magnitude(CHANNEL_LENGHT - 2 downto CHANNEL_LENGHT - 1 - NUM_LEDS));
+>>>>>>> Stashed changes
                     var_found := false;
                     
                     -- Clear out led value
                     tmp_led <= (others => '0');
 
-                    -- Scan the vector for the first '1', then turn all subsequent '1's to '0's
+                    -- Scan the vector from MSB to LSB. Once a '1' is found, light up that LED and all below it to create a bar
                     for i in NUM_LEDS-1 downto 0 loop
+<<<<<<< Updated upstream
                         if var_leds(i) = '1' and not var_found then
                             tmp_led(i) <= '1';
                             var_found := true;
                         elsif var_found then
                             tmp_led(i) <= '1';
+=======
+                        if var_leds(i) = '1' or var_found then
+                            tmp_led(i) <= '1';
+                            var_found := true;
+>>>>>>> Stashed changes
                         end if;
                     end loop;
                     
