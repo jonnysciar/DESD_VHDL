@@ -1,3 +1,11 @@
+---------------------------------------------------------------------------------- 
+-- Module Name: Reverb
+-- Revision:
+-- Revision 1.1 alpha - Reboot v2 & Initial Release
+-- Revision 1.2 alpha - Split Compute path in search of better timings...
+-- 
+----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -62,14 +70,8 @@ architecture Behavioral of reverb is
         );
     end component;
 
-    --- States --------------------------------------------------------------------
-    -------------------------------------------------------------------------------
-
-    type state_type is (WAIT_L, WAIT_R, MUL, GAIN, SUM, SAT, SEND_L, SEND_R);
+    type state_type is (WAIT_L, WAIT_R, COMPUTE_1, COMPUTE_2, SEND_L, SEND_R);
     signal state : state_type := WAIT_L;
-
-    --- Signals -------------------------------------------------------------------
-    -------------------------------------------------------------------------------
 
     signal x_l, x_r : signed(CHANNEL_LENGHT-1 downto 0);
     signal y_l, y_r : std_logic_vector(CHANNEL_LENGHT-1 downto 0);
@@ -79,13 +81,9 @@ architecture Behavioral of reverb is
     signal delay_valid_l : std_logic;
     signal delay_valid_r : std_logic;
 
-    -- Registered pipeline signals
-    signal mul_res_l, mul_res_r     : signed(CHANNEL_LENGHT+GAIN_LENGHT downto 0);
-    signal data_gain_l, data_gain_r : signed(CHANNEL_LENGHT downto 0);
-    signal sum_res_l, sum_res_r     : signed(CHANNEL_LENGHT downto 0);
-
 begin
 
+    -------------------------------------------------------------------------------
     --- Delay instances -----------------------------------------------------------
     -------------------------------------------------------------------------------
 
@@ -109,7 +107,7 @@ begin
     port map( aclk => aclk, aresetn => aresetn, delay_in => delay_in, data_in => y_r, 
               data_in_valid => delay_valid_r, data_out => delay_out_r );
 
-
+    -------------------------------------------------------------------------------
     --- AXI Handshake & Signals ---------------------------------------------------
     -------------------------------------------------------------------------------
 
@@ -131,16 +129,28 @@ begin
         '1' when SEND_R,
         '0' when Others;
 
+    -------------------------------------------------------------------------------
     --- Synchronous process -------------------------------------------------------
     -------------------------------------------------------------------------------
 
     process(aclk, aresetn)
+        variable mul_res_l : signed(CHANNEL_LENGHT+GAIN_LENGHT downto 0);
+        variable data_gain_l : signed(CHANNEL_LENGHT downto 0);
+        variable sum_res_l : signed(CHANNEL_LENGHT downto 0);
+        
+        variable mul_res_r : signed(CHANNEL_LENGHT+GAIN_LENGHT downto 0);
+        variable data_gain_r : signed(CHANNEL_LENGHT downto 0);
+        variable sum_res_r : signed(CHANNEL_LENGHT downto 0);
     begin
         if aresetn = '0' then
             state <= WAIT_L;
-            -- Bring delay_valid low
+            -- Initialize signals
             delay_valid_l <= '0';
             delay_valid_r <= '0';
+            x_l <= (others => '0');
+            x_r <= (others => '0');
+            y_l <= (others => '0');
+            y_r <= (others => '0');
         elsif rising_edge(aclk) then
             -- Default pulse signals
             delay_valid_l <= '0';
@@ -156,39 +166,26 @@ begin
                 when WAIT_R =>
                     if s_axis_tvalid = '1' and s_axis_tlast = '1' then
                         x_r <= signed(s_axis_tdata);
-                        state <= MUL;
+                        state <= COMPUTE_1;
                     end if;
 
-                when MUL =>
+                when COMPUTE_1 =>
                     if enable_reverb = '1' then
-                        -- Left channel mult
-                        mul_res_l <= signed("0" & gain_in) * signed(delay_out_l);
-                        -- Right channel mult
-                        mul_res_r <= signed("0" & gain_in) * signed(delay_out_r);
-                    end if;
-                    state <= GAIN;
+                        -- Left channel partial compute
+                        mul_res_l := signed("0" & gain_in) * signed(delay_out_l);
+                        data_gain_l := resize(shift_right(mul_res_l, GAIN_LENGHT), CHANNEL_LENGHT+1);
 
-                when GAIN =>
-                    if enable_reverb = '1' then
-                        -- Left channel gain
-                        data_gain_l <= resize(shift_right(mul_res_l, GAIN_LENGHT), CHANNEL_LENGHT+1);
-                        -- Right channel gain
-                        data_gain_r <= resize(shift_right(mul_res_r, GAIN_LENGHT), CHANNEL_LENGHT+1);
+                        -- Right channel partial compute
+                        mul_res_r := signed("0" & gain_in) * signed(delay_out_r);
+                        data_gain_r := resize(shift_right(mul_res_r, GAIN_LENGHT), CHANNEL_LENGHT+1);
                     end if;
-                    state <= SUM;
+                    state <= COMPUTE_2;
 
-                when SUM =>
+                when COMPUTE_2 =>
                     if enable_reverb = '1' then
-                        -- Left channel sum (and sat algorithm)
-                        sum_res_l <= resize(x_l, CHANNEL_LENGHT+1) + data_gain_l;
-                        -- Right channel sum (and sat algorithm)
-                        sum_res_r <= resize(x_r, CHANNEL_LENGHT+1) + data_gain_r;
                         
-                    end if;
-                    state <= SAT;
-                
-                when SAT =>
-                    if enable_reverb = '1' then
+                        sum_res_l := resize(x_l, CHANNEL_LENGHT+1) + data_gain_l;
+                        
                         -- Left channel sat algorithm
                         if sum_res_l > HIGHER_BOUND then
                             y_l <= std_logic_vector(to_signed(HIGHER_BOUND, CHANNEL_LENGHT));
@@ -197,7 +194,9 @@ begin
                         else
                             y_l <= std_logic_vector(resize(sum_res_l, CHANNEL_LENGHT));
                         end if;
-
+                        
+                        sum_res_r := resize(x_r, CHANNEL_LENGHT+1) + data_gain_r;
+                        
                         -- Right channel sat algorithm
                         if sum_res_r > HIGHER_BOUND then
                             y_r <= std_logic_vector(to_signed(HIGHER_BOUND, CHANNEL_LENGHT));
@@ -206,14 +205,14 @@ begin
                         else
                             y_r <= std_logic_vector(resize(sum_res_r, CHANNEL_LENGHT));
                         end if;
-
                     else
-                        -- Bypass
+                        -- Bypass Effect
                         y_l <= std_logic_vector(x_l);
-                        y_r <= std_logic_vector(x_r); 
+                        y_r <= std_logic_vector(x_r);
                     end if;
+                    
                     state <= SEND_L;
-
+                    
                 when SEND_L =>
                     if m_axis_tready = '1' then
                         delay_valid_l <= '1';
