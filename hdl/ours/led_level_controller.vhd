@@ -87,8 +87,8 @@ begin
 
                     state <= UPDATE_LEDS;
                 when UPDATE_LEDS =>
-                    -- Select only the MSB (performs averaging + resizing)
-                    var_leds  := std_logic_vector(tmp(CHANNEL_LENGHT - 1 downto CHANNEL_LENGHT - NUM_LEDS));
+                    -- Select only the MSB magnitude (performs averaging + resizing)
+                    var_leds  := std_logic_vector(tmp(CHANNEL_LENGHT - 2 downto CHANNEL_LENGHT - NUM_LEDS - 1));
                     var_found := false;
                     
                     -- Clear out led value
