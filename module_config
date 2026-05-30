@@ -6,3 +6,9 @@ led_level_controller
 output_sel
 volume_controller
 volume_multiplier
+driver_4_7_seg
+send_controller
+effect_selector
+reverb
+moving_average
+binary_to_decimal
