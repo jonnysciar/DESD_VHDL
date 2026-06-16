@@ -1,56 +1,7 @@
-#*****************************************************************************************
-# Vivado (TM) v2020.2 (64-bit)
-#
-# create_project.tcl: Tcl script for re-creating project 'lab_solution'
-#*****************************************************************************************
+# ─────────────────────────────────────────────────────────────────────────────
+# Licence
+# ─────────────────────────────────────────────────────────────────────────────
 
-# Check file required for this script exists
-proc checkRequiredFiles { origin_dir} {
-  set status true
-  set files [list \
-   "${origin_dir}/build/hdl/led_level_controller.vhd" \
-   "${origin_dir}/build/hdl/digilent_jstk2.vhd" \
-   "${origin_dir}/build/hdl/effect_selector.vhd" \
-   "${origin_dir}/build/hdl/driver_4_7_seg.vhd" \
-   "${origin_dir}/build/hdl/moving_average.vhd" \
-   "${origin_dir}/build/hdl/balance_controller.vhd" \
-   "${origin_dir}/build/hdl/volume_multiplier.vhd" \
-   "${origin_dir}/build/hdl/volume_saturator.vhd" \
-   "${origin_dir}/build/hdl/volume_controller.vhd" \
-   "${origin_dir}/build/hdl/edge_detector_trigger.vhd" \
-   "${origin_dir}/build/hdl/output_sel.vhd" \
-   "${origin_dir}/build/hdl/bram_controller.vhd" \
-   "${origin_dir}/build/hdl/delay.vhd" \
-   "${origin_dir}/build/hdl/reverb.vhd" \
-   "${origin_dir}/build/hdl/float_compressor.vhd" \
-   "${origin_dir}/build/hdl/axis_fifo.vhd" \
-   "${origin_dir}/build/hdl/depacketizer.vhd" \
-   "${origin_dir}/build/hdl/send_controller.vhd" \
-   "${origin_dir}/build/hdl/division_lut.vhd" \
-   "${origin_dir}/build/hdl/binary_to_decimal.vhd" \
-   "${origin_dir}/build/hdl/design_1_wrapper.vhd" \
-   "${origin_dir}/build/hdl/archive_project_summary.txt" \
-   "${origin_dir}/constraints/Basys3_Constraints.xdc" \
-  ]
-  foreach ifile $files {
-    if { ![file isfile $ifile] } {
-      puts " Could not find local file $ifile "
-      set status false
-    }
-  }
-
-  set paths [list \
-   [file normalize "${origin_dir}/iprepo"] \
-  ]
-  foreach ipath $paths {
-    if { ![file isdirectory $ipath] } {
-      puts " Could not access $ipath "
-      set status false
-    }
-  }
-
-  return $status
-}
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir "."
 
@@ -118,19 +69,8 @@ if { $::argc > 0 } {
 # Set the directory path for the original project from where this script was exported
 set orig_proj_dir "[file normalize "$origin_dir/"]"
 
-# Check for paths and files needed for project creation
-set validate_required 0
-if { $validate_required } {
-  if { [checkRequiredFiles $origin_dir] } {
-    puts "Tcl file $script_file is valid. All files required for project creation is accesable. "
-  } else {
-    puts "Tcl file $script_file is not valid. Not all files required for project creation is accesable. "
-    return
-  }
-}
-
 # Create project
-create_project ${_xil_proj_name_} ./${_xil_proj_name_} -part xc7a35tcpg236-1
+create_project ${_xil_proj_name_} ./ -part xc7a35tcpg236-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -168,35 +108,13 @@ if { $obj != {} } {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 # Import local files from the original project
-set files [list \
- [file normalize "${origin_dir}/build/hdl/led_level_controller.vhd"]\
- [file normalize "${origin_dir}/build/hdl/digilent_jstk2.vhd"]\
- [file normalize "${origin_dir}/build/hdl/effect_selector.vhd"]\
- [file normalize "${origin_dir}/build/hdl/driver_4_7_seg.vhd"]\
- [file normalize "${origin_dir}/build/hdl/moving_average.vhd"]\
- [file normalize "${origin_dir}/build/hdl/balance_controller.vhd"]\
- [file normalize "${origin_dir}/build/hdl/volume_multiplier.vhd"]\
- [file normalize "${origin_dir}/build/hdl/volume_saturator.vhd"]\
- [file normalize "${origin_dir}/build/hdl/volume_controller.vhd"]\
- [file normalize "${origin_dir}/build/hdl/edge_detector_trigger.vhd"]\
- [file normalize "${origin_dir}/build/hdl/output_sel.vhd"]\
- [file normalize "${origin_dir}/build/hdl/bram_controller.vhd"]\
- [file normalize "${origin_dir}/build/hdl/delay.vhd"]\
- [file normalize "${origin_dir}/build/hdl/reverb.vhd"]\
- [file normalize "${origin_dir}/build/hdl/float_compressor.vhd"]\
- [file normalize "${origin_dir}/build/hdl/axis_fifo.vhd"]\
- [file normalize "${origin_dir}/build/hdl/depacketizer.vhd"]\
- [file normalize "${origin_dir}/build/hdl/send_controller.vhd"]\
- [file normalize "${origin_dir}/build/hdl/division_lut.vhd"]\
- [file normalize "${origin_dir}/build/hdl/binary_to_decimal.vhd"]\
- [file normalize "${origin_dir}/build/hdl/design_1_wrapper.vhd"]\
- [file normalize "${origin_dir}/build/hdl/archive_project_summary.txt"]\
- [file normalize "${origin_dir}/build/hdl/archive_project_summary.txt" ]\
-]
-set imported_files [import_files -fileset sources_1 $files]
+source "$origin_dir/scripts/modules.tcl"
+import $modules
+set imported_files [import_files -fileset sources_1 $modules]
 
-# Set 'sources_1' fileset file properties for remote files
-# None
+# -----------------------------------------------------------------------------
+# UNDER SCRUTINY
+# -----------------------------------------------------------------------------
 
 # Set 'sources_1' fileset file properties for local files
 set file "hdl/led_level_controller.vhd"
@@ -289,6 +207,10 @@ set obj [get_filesets sources_1]
 set_property -name "top" -value "design_1_wrapper" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 
+# -----------------------------------------------------------------------------
+# END SCRUTINY
+# -----------------------------------------------------------------------------
+
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
   create_fileset -constrset constrs_1
@@ -307,6 +229,10 @@ set_property -name "file_type" -value "XDC" -objects $file_obj
 # Set 'constrs_1' fileset properties
 set obj [get_filesets constrs_1]
 
+# -----------------------------------------------------------------------------
+# ADD IMPL CONSTRAINTS
+# -----------------------------------------------------------------------------
+
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
   create_fileset -simset sim_1
@@ -314,114 +240,17 @@ if {[string equal [get_filesets -quiet sim_1] ""]} {
 
 # Set 'sim_1' fileset object
 set obj [get_filesets sim_1]
-# Import local files from the original project
-set files [list \
- [file normalize "${origin_dir}/build/hdl/tb/float_compressor_tb.vhd"]\
-]
-set imported_files [import_files -fileset sim_1 $files]
-
-# Set 'sim_1' fileset file properties for remote files
-# None
-
-# Set 'sim_1' fileset file properties for local files
-set file "tb/float_compressor_tb.vhd"
-set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-
-# Set 'sim_1' fileset properties
-set obj [get_filesets sim_1]
-set_property -name "hbs.configure_design_for_hier_access" -value "1" -objects $obj
-set_property -name "top" -value "float_compressor_tb" -objects $obj
-set_property -name "top_auto_set" -value "0" -objects $obj
-set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+# Empty (no sources present)
 
 # Set 'utils_1' fileset object
 set obj [get_filesets utils_1]
 # Empty (no sources present)
 
-# Set 'utils_1' fileset properties
-set obj [get_filesets utils_1]
-
-
-# Adding sources referenced in BDs, if not already added
-if { [get_files led_level_controller.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/led_level_controller.vhd
-}
-if { [get_files digilent_jstk2.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/digilent_jstk2.vhd
-}
-if { [get_files effect_selector.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/effect_selector.vhd
-}
-if { [get_files driver_4_7_seg.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/driver_4_7_seg.vhd
-}
-if { [get_files moving_average.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/moving_average.vhd
-}
-if { [get_files balance_controller.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/balance_controller.vhd
-}
-if { [get_files volume_multiplier.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/volume_multiplier.vhd
-}
-if { [get_files volume_saturator.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/volume_saturator.vhd
-}
-if { [get_files volume_controller.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/volume_controller.vhd
-}
-if { [get_files edge_detector_trigger.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/edge_detector_trigger.vhd
-}
-if { [get_files output_sel.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/output_sel.vhd
-}
-if { [get_files bram_controller.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/bram_controller.vhd
-}
-if { [get_files delay.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/delay.vhd
-}
-if { [get_files reverb.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/reverb.vhd
-}
-if { [get_files float_compressor.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/float_compressor.vhd
-}
-if { [get_files axis_fifo.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/axis_fifo.vhd
-}
-if { [get_files depacketizer.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/depacketizer.vhd
-}
-if { [get_files send_controller.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/send_controller.vhd
-}
-if { [get_files division_lut.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/division_lut.vhd
-}
-if { [get_files binary_to_decimal.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/binary_to_decimal.vhd
-}
-if { [get_files division_lut.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/division_lut.vhd
-}
-if { [get_files binary_to_decimal.vhd] == "" } {
-  import_files -quiet -fileset sources_1 /home/gian/Downloads/lab_encrypted.xpr/lab_solution/lab_solution.srcs/sources_1/imports/LAB/binary_to_decimal.vhd
-}
-
-
+# ─────────────────────────────────────────────────────────────────────────────
 # Proc to create BD design_1
+# ─────────────────────────────────────────────────────────────────────────────
 proc cr_bd_design_1 { parentCell } {
-# The design that will be created by this Tcl proc contains the following 
-# module references:
-# binary_to_decimal, binary_to_decimal, digilent_jstk2, driver_4_7seg, effect_selector, led_level_controller, axis_fifo, depacketizer, float_compressor, send_controller, balance_controller, edge_detector_trigger, moving_average, output_sel, reverb, volume_controller
-
-
-
-  # CHANGE DESIGN NAME HERE
+  # Change design name here
   set design_name design_1
 
   common::send_gid_msg -ssname BD::TCL -id 2010 -severity "INFO" "Currently there is no design <$design_name> in project, so creating one..."
@@ -429,323 +258,324 @@ proc cr_bd_design_1 { parentCell } {
   create_bd_design $design_name
 
   set bCheckIPsPassed 1
-  ##################################################################
-  # CHECK IPs
-  ##################################################################
+  # Check IPs
   set bCheckIPs 1
   if { $bCheckIPs == 1 } {
-     set list_check_ips "\ 
-  DigiLAB:ip:AXI4Stream_UART:1.1\
-  DigiLAB:ip:axi4stream_spi_master:1.0\
-  xilinx.com:ip:axis_broadcaster:1.1\
-  DigiLAB:ip:axis_dual_i2s:1.0\
-  xilinx.com:ip:clk_wiz:6.0\
-  xilinx.com:ip:axis_dwidth_converter:1.1\
-  xilinx.com:ip:proc_sys_reset:5.0\
-  "
+    set list_check_ips "\ 
+      DigiLAB:ip:AXI4Stream_UART:1.1\
+      DigiLAB:ip:axi4stream_spi_master:1.0\
+      xilinx.com:ip:axis_broadcaster:1.1\
+      DigiLAB:ip:axis_dual_i2s:1.0\
+      xilinx.com:ip:clk_wiz:6.0\
+      xilinx.com:ip:axis_dwidth_converter:1.1\
+      xilinx.com:ip:proc_sys_reset:5.0\
+    "
 
-   set list_ips_missing ""
-   common::send_gid_msg -ssname BD::TCL -id 2011 -severity "INFO" "Checking if the following IPs exist in the project's IP catalog: $list_check_ips ."
+    set list_ips_missing ""
+    common::send_gid_msg -ssname BD::TCL -id 2011 -severity "INFO" "Checking if the following IPs exist in the project's IP catalog: $list_check_ips ."
 
-   foreach ip_vlnv $list_check_ips {
-      set ip_obj [get_ipdefs -all $ip_vlnv]
-      if { $ip_obj eq "" } {
-         lappend list_ips_missing $ip_vlnv
-      }
-   }
+    foreach ip_vlnv $list_check_ips {
+        set ip_obj [get_ipdefs -all $ip_vlnv]
+        if { $ip_obj eq "" } {
+          lappend list_ips_missing $ip_vlnv
+        }
+    }
 
-   if { $list_ips_missing ne "" } {
-      catch {common::send_gid_msg -ssname BD::TCL -id 2012 -severity "ERROR" "The following IPs are not found in the IP Catalog:\n  $list_ips_missing\n\nResolution: Please add the repository containing the IP(s) to the project." }
-      set bCheckIPsPassed 0
-   }
+    if { $list_ips_missing ne "" } {
+        catch {common::send_gid_msg -ssname BD::TCL -id 2012 -severity "ERROR" "The following IPs are not found in the IP Catalog:\n  $list_ips_missing\n\nResolution: Please add the repository containing the IP(s) to the project." }
+        set bCheckIPsPassed 0
+    }
 
   }
 
-  ##################################################################
-  # CHECK Modules
-  ##################################################################
+  # Check Modules
   set bCheckModules 1
   if { $bCheckModules == 1 } {
-     set list_check_mods "\ 
-  binary_to_decimal\
-  binary_to_decimal\
-  digilent_jstk2\
-  driver_4_7seg\
-  effect_selector\
-  led_level_controller\
-  axis_fifo\
-  depacketizer\
-  float_compressor\
-  send_controller\
-  balance_controller\
-  edge_detector_trigger\
-  moving_average\
-  output_sel\
-  reverb\
-  volume_controller\
-  "
+    set list_check_mods "\ 
+      binary_to_decimal\
+      binary_to_decimal\
+      digilent_jstk2\
+      driver_4_7seg\
+      effect_selector\
+      led_level_controller\
+      axis_fifo\
+      depacketizer\
+      float_compressor\
+      send_controller\
+      balance_controller\
+      edge_detector_trigger\
+      moving_average\
+      output_sel\
+      reverb\
+      volume_controller\
+    "
 
-   set list_mods_missing ""
-   common::send_gid_msg -ssname BD::TCL -id 2020 -severity "INFO" "Checking if the following modules exist in the project's sources: $list_check_mods ."
+    set list_mods_missing ""
+    common::send_gid_msg -ssname BD::TCL -id 2020 -severity "INFO" "Checking if the following modules exist in the project's sources: $list_check_mods ."
 
-   foreach mod_vlnv $list_check_mods {
-      if { [can_resolve_reference $mod_vlnv] == 0 } {
-        lappend list_mods_missing $mod_vlnv
-      }
-   }
+    foreach mod_vlnv $list_check_mods {
+        if { [can_resolve_reference $mod_vlnv] == 0 } {
+          lappend list_mods_missing $mod_vlnv
+        }
+    }
 
-   if { $list_mods_missing ne "" } {
-      catch {common::send_gid_msg -ssname BD::TCL -id 2021 -severity "ERROR" "The following module(s) are not found in the project: $list_mods_missing" }
-      common::send_gid_msg -ssname BD::TCL -id 2022 -severity "INFO" "Please add source files for the missing module(s) above."
-      set bCheckIPsPassed 0
-   }
-}
+    if { $list_mods_missing ne "" } {
+        catch {common::send_gid_msg -ssname BD::TCL -id 2021 -severity "ERROR" "The following module(s) are not found in the project: $list_mods_missing" }
+        common::send_gid_msg -ssname BD::TCL -id 2022 -severity "INFO" "Please add source files for the missing module(s) above."
+        set bCheckIPsPassed 0
+    }
+  }
 
   if { $bCheckIPsPassed != 1 } {
     common::send_gid_msg -ssname BD::TCL -id 2023 -severity "WARNING" "Will not continue with creation of design due to the error(s) above."
     return 3
   }
 
-  
-# Hierarchical cell: reset
-proc create_hier_cell_reset { parentCell nameHier } {
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Hierarchical Cell: reset
+  # ─────────────────────────────────────────────────────────────────────────────
+  proc create_hier_cell_reset { parentCell nameHier } {
 
-  variable script_folder
+    variable script_folder
 
-  if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_reset() - Empty argument(s)!"}
-     return
-  }
+    if { $parentCell eq "" || $nameHier eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_reset() - Empty argument(s)!"}
+      return
+    }
 
-  # Get object for parentCell
-  set parentObj [get_bd_cells $parentCell]
-  if { $parentObj == "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
-     return
-  }
+    # Get object for parentCell
+    set parentObj [get_bd_cells $parentCell]
+    if { $parentObj == "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
+      return
+    }
 
-  # Make sure parentObj is hier blk
-  set parentType [get_property TYPE $parentObj]
-  if { $parentType ne "hier" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
-     return
-  }
+    # Make sure parentObj is hier blk
+    set parentType [get_property TYPE $parentObj]
+    if { $parentType ne "hier" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+      return
+    }
 
-  # Save current instance; Restore later
-  set oldCurInst [current_bd_instance .]
+    # Save current instance; Restore later
+    set oldCurInst [current_bd_instance .]
 
-  # Set parent object as current
-  current_bd_instance $parentObj
+    # Set parent object as current
+    current_bd_instance $parentObj
 
-  # Create cell and set as current instance
-  set hier_obj [create_bd_cell -type hier $nameHier]
-  current_bd_instance $hier_obj
+    # Create cell and set as current instance
+    set hier_obj [create_bd_cell -type hier $nameHier]
+    current_bd_instance $hier_obj
 
-  # Create interface pins
+    # Create interface pins
 
-  # Create pins
-  create_bd_pin -dir I -type clk clk_i2s
-  create_bd_pin -dir I -type clk clk_out
-  create_bd_pin -dir I -type clk clk_uart
-  create_bd_pin -dir O -from 0 -to 0 -type rst i2s_aresetn
-  create_bd_pin -dir I locked
-  create_bd_pin -dir O -from 0 -to 0 -type rst out_aresetn
-  create_bd_pin -dir I -type rst reset
-  create_bd_pin -dir O -from 0 -to 0 -type rst uart_reset
+    # Create pins
+    create_bd_pin -dir I -type clk clk_i2s
+    create_bd_pin -dir I -type clk clk_out
+    create_bd_pin -dir I -type clk clk_uart
+    create_bd_pin -dir O -from 0 -to 0 -type rst i2s_aresetn
+    create_bd_pin -dir I locked
+    create_bd_pin -dir O -from 0 -to 0 -type rst out_aresetn
+    create_bd_pin -dir I -type rst reset
+    create_bd_pin -dir O -from 0 -to 0 -type rst uart_reset
 
-  # Create instance: proc_sys_reset_clk_i2c, and set properties
-  set proc_sys_reset_clk_i2c [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_clk_i2c ]
-  set_property -dict [ list \
-   CONFIG.RESET_BOARD_INTERFACE {Custom} \
-   CONFIG.USE_BOARD_FLOW {false} \
- ] $proc_sys_reset_clk_i2c
-
-  # Create instance: proc_sys_reset_clk_out, and set properties
-  set proc_sys_reset_clk_out [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_clk_out ]
-  set_property -dict [ list \
-   CONFIG.RESET_BOARD_INTERFACE {Custom} \
-   CONFIG.USE_BOARD_FLOW {false} \
- ] $proc_sys_reset_clk_out
-
-  # Create instance: proc_sys_reset_clk_uart, and set properties
-  set proc_sys_reset_clk_uart [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_clk_uart ]
-  set_property -dict [ list \
-   CONFIG.RESET_BOARD_INTERFACE {Custom} \
-   CONFIG.USE_BOARD_FLOW {false} \
- ] $proc_sys_reset_clk_uart
-
-  # Create port connections
-  connect_bd_net -net clk_wiz_clk_i2s [get_bd_pins clk_i2s] [get_bd_pins proc_sys_reset_clk_i2c/slowest_sync_clk]
-  connect_bd_net -net clk_wiz_clk_out [get_bd_pins clk_out] [get_bd_pins proc_sys_reset_clk_out/slowest_sync_clk]
-  connect_bd_net -net clk_wiz_clk_uart [get_bd_pins clk_uart] [get_bd_pins proc_sys_reset_clk_uart/slowest_sync_clk]
-  connect_bd_net -net clk_wiz_locked [get_bd_pins locked] [get_bd_pins proc_sys_reset_clk_i2c/dcm_locked] [get_bd_pins proc_sys_reset_clk_out/dcm_locked] [get_bd_pins proc_sys_reset_clk_uart/dcm_locked]
-  connect_bd_net -net proc_sys_reset_0_peripheral_reset [get_bd_pins uart_reset] [get_bd_pins proc_sys_reset_clk_uart/peripheral_reset]
-  connect_bd_net -net proc_sys_reset_1_peripheral_aresetn [get_bd_pins out_aresetn] [get_bd_pins proc_sys_reset_clk_out/peripheral_aresetn]
-  connect_bd_net -net proc_sys_reset_2_peripheral_aresetn [get_bd_pins i2s_aresetn] [get_bd_pins proc_sys_reset_clk_i2c/peripheral_aresetn]
-  connect_bd_net -net reset_1 [get_bd_pins reset] [get_bd_pins proc_sys_reset_clk_i2c/ext_reset_in] [get_bd_pins proc_sys_reset_clk_out/ext_reset_in] [get_bd_pins proc_sys_reset_clk_uart/ext_reset_in]
-
-  # Restore current instance
-  current_bd_instance $oldCurInst
-}
-  
-# Hierarchical cell: path_2
-proc create_hier_cell_path_2 { parentCell nameHier } {
-
-  variable script_folder
-
-  if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_path_2() - Empty argument(s)!"}
-     return
-  }
-
-  # Get object for parentCell
-  set parentObj [get_bd_cells $parentCell]
-  if { $parentObj == "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
-     return
-  }
-
-  # Make sure parentObj is hier blk
-  set parentType [get_property TYPE $parentObj]
-  if { $parentType ne "hier" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
-     return
-  }
-
-  # Save current instance; Restore later
-  set oldCurInst [current_bd_instance .]
-
-  # Set parent object as current
-  current_bd_instance $parentObj
-
-  # Create cell and set as current instance
-  set hier_obj [create_bd_cell -type hier $nameHier]
-  current_bd_instance $hier_obj
-
-  # Create interface pins
-  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 m_axis
-
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 s_axis
-
-
-  # Create pins
-  create_bd_pin -dir I -type clk aclk
-  create_bd_pin -dir I -type rst aresetn
-  create_bd_pin -dir I -from 9 -to 0 balance
-  create_bd_pin -dir I btn_jstk
-  create_bd_pin -dir I -from 9 -to 0 delay_in
-  create_bd_pin -dir I enable_filter
-  create_bd_pin -dir I enable_reverb
-  create_bd_pin -dir I -from 9 -to 0 gain_in
-  create_bd_pin -dir O -from 7 -to 0 led_b
-  create_bd_pin -dir O -from 7 -to 0 led_g
-  create_bd_pin -dir O -from 7 -to 0 led_r
-  create_bd_pin -dir I -from 9 -to 0 volume
-
-  # Create instance: balance_controller_0, and set properties
-  set block_name balance_controller
-  set block_cell_name balance_controller_0
-  if { [catch {set balance_controller_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $balance_controller_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: edge_detector_trigger_0, and set properties
-  set block_name edge_detector_trigger
-  set block_cell_name edge_detector_trigger_0
-  if { [catch {set edge_detector_trigger_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $edge_detector_trigger_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: moving_average_0, and set properties
-  set block_name moving_average
-  set block_cell_name moving_average_0
-  if { [catch {set moving_average_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $moving_average_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: output_sel_0, and set properties
-  set block_name output_sel
-  set block_cell_name output_sel_0
-  if { [catch {set output_sel_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $output_sel_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
+    # Create instance: proc_sys_reset_clk_i2c, and set properties
+    set proc_sys_reset_clk_i2c [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_clk_i2c ]
     set_property -dict [ list \
-   CONFIG.LOWER_BOUND {-8388608} \
- ] $output_sel_0
+    CONFIG.RESET_BOARD_INTERFACE {Custom} \
+    CONFIG.USE_BOARD_FLOW {false} \
+  ] $proc_sys_reset_clk_i2c
 
-  # Create instance: reverb_0, and set properties
-  set block_name reverb
-  set block_cell_name reverb_0
-  if { [catch {set reverb_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $reverb_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
+    # Create instance: proc_sys_reset_clk_out, and set properties
+    set proc_sys_reset_clk_out [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_clk_out ]
     set_property -dict [ list \
-   CONFIG.LOG2_DELAY_INCR {4} \
-   CONFIG.LOWER_BOUND {-8388608} \
- ] $reverb_0
+    CONFIG.RESET_BOARD_INTERFACE {Custom} \
+    CONFIG.USE_BOARD_FLOW {false} \
+  ] $proc_sys_reset_clk_out
 
-  # Create instance: volume_controller_0, and set properties
-  set block_name volume_controller
-  set block_cell_name volume_controller_0
-  if { [catch {set volume_controller_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $volume_controller_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
+    # Create instance: proc_sys_reset_clk_uart, and set properties
+    set proc_sys_reset_clk_uart [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_clk_uart ]
     set_property -dict [ list \
-   CONFIG.LOWER_BOUND {-8388608} \
- ] $volume_controller_0
+    CONFIG.RESET_BOARD_INTERFACE {Custom} \
+    CONFIG.USE_BOARD_FLOW {false} \
+  ] $proc_sys_reset_clk_uart
 
-  # Create interface connections
-  connect_bd_intf_net -intf_net balance_controller_0_m_axis [get_bd_intf_pins balance_controller_0/m_axis] [get_bd_intf_pins volume_controller_0/s_axis]
-  connect_bd_intf_net -intf_net moving_average_0_m_axis [get_bd_intf_pins moving_average_0/m_axis] [get_bd_intf_pins output_sel_0/s_axis]
-  connect_bd_intf_net -intf_net output_sel_0_m_axis [get_bd_intf_pins balance_controller_0/s_axis] [get_bd_intf_pins output_sel_0/m_axis]
-  connect_bd_intf_net -intf_net reverb_0_m_axis [get_bd_intf_pins moving_average_0/s_axis] [get_bd_intf_pins reverb_0/m_axis]
-  connect_bd_intf_net -intf_net split_M00_AXIS [get_bd_intf_pins s_axis] [get_bd_intf_pins reverb_0/s_axis]
-  connect_bd_intf_net -intf_net volume_controller_0_m_axis [get_bd_intf_pins m_axis] [get_bd_intf_pins volume_controller_0/m_axis]
+    # Create port connections
+    connect_bd_net -net clk_wiz_clk_i2s [get_bd_pins clk_i2s] [get_bd_pins proc_sys_reset_clk_i2c/slowest_sync_clk]
+    connect_bd_net -net clk_wiz_clk_out [get_bd_pins clk_out] [get_bd_pins proc_sys_reset_clk_out/slowest_sync_clk]
+    connect_bd_net -net clk_wiz_clk_uart [get_bd_pins clk_uart] [get_bd_pins proc_sys_reset_clk_uart/slowest_sync_clk]
+    connect_bd_net -net clk_wiz_locked [get_bd_pins locked] [get_bd_pins proc_sys_reset_clk_i2c/dcm_locked] [get_bd_pins proc_sys_reset_clk_out/dcm_locked] [get_bd_pins proc_sys_reset_clk_uart/dcm_locked]
+    connect_bd_net -net proc_sys_reset_0_peripheral_reset [get_bd_pins uart_reset] [get_bd_pins proc_sys_reset_clk_uart/peripheral_reset]
+    connect_bd_net -net proc_sys_reset_1_peripheral_aresetn [get_bd_pins out_aresetn] [get_bd_pins proc_sys_reset_clk_out/peripheral_aresetn]
+    connect_bd_net -net proc_sys_reset_2_peripheral_aresetn [get_bd_pins i2s_aresetn] [get_bd_pins proc_sys_reset_clk_i2c/peripheral_aresetn]
+    connect_bd_net -net reset_1 [get_bd_pins reset] [get_bd_pins proc_sys_reset_clk_i2c/ext_reset_in] [get_bd_pins proc_sys_reset_clk_out/ext_reset_in] [get_bd_pins proc_sys_reset_clk_uart/ext_reset_in]
 
-  # Create port connections
-  connect_bd_net -net clk_wiz_clk_out [get_bd_pins aclk] [get_bd_pins balance_controller_0/aclk] [get_bd_pins edge_detector_trigger_0/clk] [get_bd_pins moving_average_0/aclk] [get_bd_pins output_sel_0/aclk] [get_bd_pins reverb_0/aclk] [get_bd_pins volume_controller_0/aclk]
-  connect_bd_net -net edge_detector_trigger_0_output_signal [get_bd_pins edge_detector_trigger_0/output_signal] [get_bd_pins output_sel_0/toggle]
-  connect_bd_net -net effect_selector_0_balance [get_bd_pins balance] [get_bd_pins balance_controller_0/balance]
-  connect_bd_net -net effect_selector_0_delay [get_bd_pins delay_in] [get_bd_pins reverb_0/delay_in]
-  connect_bd_net -net effect_selector_0_gain [get_bd_pins gain_in] [get_bd_pins reverb_0/gain_in]
-  connect_bd_net -net effect_selector_0_volume [get_bd_pins volume] [get_bd_pins volume_controller_0/volume]
-  connect_bd_net -net enable_filter_1 [get_bd_pins enable_filter] [get_bd_pins moving_average_0/enable_filter]
-  connect_bd_net -net enable_reverb_0_1 [get_bd_pins enable_reverb] [get_bd_pins reverb_0/enable_reverb]
-  connect_bd_net -net input_signal_1 [get_bd_pins btn_jstk] [get_bd_pins edge_detector_trigger_0/input_signal]
-  connect_bd_net -net output_sel_0_led_b [get_bd_pins led_b] [get_bd_pins output_sel_0/led_b]
-  connect_bd_net -net output_sel_0_led_g [get_bd_pins led_g] [get_bd_pins output_sel_0/led_g]
-  connect_bd_net -net output_sel_0_led_r [get_bd_pins led_r] [get_bd_pins output_sel_0/led_r]
-  connect_bd_net -net proc_sys_reset_1_peripheral_aresetn [get_bd_pins aresetn] [get_bd_pins balance_controller_0/aresetn] [get_bd_pins edge_detector_trigger_0/resetn] [get_bd_pins moving_average_0/aresetn] [get_bd_pins output_sel_0/aresetn] [get_bd_pins reverb_0/aresetn] [get_bd_pins volume_controller_0/aresetn]
-
-  # Restore current instance
-  current_bd_instance $oldCurInst
-}
+    # Restore current instance
+    current_bd_instance $oldCurInst
+  }
   
-# Hierarchical cell: path_1
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Hierarchical Cell: path_2
+  # ─────────────────────────────────────────────────────────────────────────────
+  proc create_hier_cell_path_2 { parentCell nameHier } {
+
+    variable script_folder
+
+    if { $parentCell eq "" || $nameHier eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_path_2() - Empty argument(s)!"}
+      return
+    }
+
+    # Get object for parentCell
+    set parentObj [get_bd_cells $parentCell]
+    if { $parentObj == "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
+      return
+    }
+
+    # Make sure parentObj is hier blk
+    set parentType [get_property TYPE $parentObj]
+    if { $parentType ne "hier" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+      return
+    }
+
+    # Save current instance; Restore later
+    set oldCurInst [current_bd_instance .]
+
+    # Set parent object as current
+    current_bd_instance $parentObj
+
+    # Create cell and set as current instance
+    set hier_obj [create_bd_cell -type hier $nameHier]
+    current_bd_instance $hier_obj
+
+    # Create interface pins
+    create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 m_axis
+
+    create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 s_axis
+
+
+    # Create pins
+    create_bd_pin -dir I -type clk aclk
+    create_bd_pin -dir I -type rst aresetn
+    create_bd_pin -dir I -from 9 -to 0 balance
+    create_bd_pin -dir I btn_jstk
+    create_bd_pin -dir I -from 9 -to 0 delay_in
+    create_bd_pin -dir I enable_filter
+    create_bd_pin -dir I enable_reverb
+    create_bd_pin -dir I -from 9 -to 0 gain_in
+    create_bd_pin -dir O -from 7 -to 0 led_b
+    create_bd_pin -dir O -from 7 -to 0 led_g
+    create_bd_pin -dir O -from 7 -to 0 led_r
+    create_bd_pin -dir I -from 9 -to 0 volume
+
+    # Create instance: balance_controller_0, and set properties
+    set block_name balance_controller
+    set block_cell_name balance_controller_0
+    if { [catch {set balance_controller_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $balance_controller_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+    
+    # Create instance: edge_detector_trigger_0, and set properties
+    set block_name edge_detector_trigger
+    set block_cell_name edge_detector_trigger_0
+    if { [catch {set edge_detector_trigger_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $edge_detector_trigger_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+    
+    # Create instance: moving_average_0, and set properties
+    set block_name moving_average
+    set block_cell_name moving_average_0
+    if { [catch {set moving_average_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $moving_average_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+    
+    # Create instance: output_sel_0, and set properties
+    set block_name output_sel
+    set block_cell_name output_sel_0
+    if { [catch {set output_sel_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $output_sel_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+      set_property -dict [ list \
+    CONFIG.LOWER_BOUND {-8388608} \
+  ] $output_sel_0
+
+    # Create instance: reverb_0, and set properties
+    set block_name reverb
+    set block_cell_name reverb_0
+    if { [catch {set reverb_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $reverb_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+      set_property -dict [ list \
+    CONFIG.LOG2_DELAY_INCR {4} \
+    CONFIG.LOWER_BOUND {-8388608} \
+  ] $reverb_0
+
+    # Create instance: volume_controller_0, and set properties
+    set block_name volume_controller
+    set block_cell_name volume_controller_0
+    if { [catch {set volume_controller_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $volume_controller_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+      set_property -dict [ list \
+    CONFIG.LOWER_BOUND {-8388608} \
+  ] $volume_controller_0
+
+    # Create interface connections
+    connect_bd_intf_net -intf_net balance_controller_0_m_axis [get_bd_intf_pins balance_controller_0/m_axis] [get_bd_intf_pins volume_controller_0/s_axis]
+    connect_bd_intf_net -intf_net moving_average_0_m_axis [get_bd_intf_pins moving_average_0/m_axis] [get_bd_intf_pins output_sel_0/s_axis]
+    connect_bd_intf_net -intf_net output_sel_0_m_axis [get_bd_intf_pins balance_controller_0/s_axis] [get_bd_intf_pins output_sel_0/m_axis]
+    connect_bd_intf_net -intf_net reverb_0_m_axis [get_bd_intf_pins moving_average_0/s_axis] [get_bd_intf_pins reverb_0/m_axis]
+    connect_bd_intf_net -intf_net split_M00_AXIS [get_bd_intf_pins s_axis] [get_bd_intf_pins reverb_0/s_axis]
+    connect_bd_intf_net -intf_net volume_controller_0_m_axis [get_bd_intf_pins m_axis] [get_bd_intf_pins volume_controller_0/m_axis]
+
+    # Create port connections
+    connect_bd_net -net clk_wiz_clk_out [get_bd_pins aclk] [get_bd_pins balance_controller_0/aclk] [get_bd_pins edge_detector_trigger_0/clk] [get_bd_pins moving_average_0/aclk] [get_bd_pins output_sel_0/aclk] [get_bd_pins reverb_0/aclk] [get_bd_pins volume_controller_0/aclk]
+    connect_bd_net -net edge_detector_trigger_0_output_signal [get_bd_pins edge_detector_trigger_0/output_signal] [get_bd_pins output_sel_0/toggle]
+    connect_bd_net -net effect_selector_0_balance [get_bd_pins balance] [get_bd_pins balance_controller_0/balance]
+    connect_bd_net -net effect_selector_0_delay [get_bd_pins delay_in] [get_bd_pins reverb_0/delay_in]
+    connect_bd_net -net effect_selector_0_gain [get_bd_pins gain_in] [get_bd_pins reverb_0/gain_in]
+    connect_bd_net -net effect_selector_0_volume [get_bd_pins volume] [get_bd_pins volume_controller_0/volume]
+    connect_bd_net -net enable_filter_1 [get_bd_pins enable_filter] [get_bd_pins moving_average_0/enable_filter]
+    connect_bd_net -net enable_reverb_0_1 [get_bd_pins enable_reverb] [get_bd_pins reverb_0/enable_reverb]
+    connect_bd_net -net input_signal_1 [get_bd_pins btn_jstk] [get_bd_pins edge_detector_trigger_0/input_signal]
+    connect_bd_net -net output_sel_0_led_b [get_bd_pins led_b] [get_bd_pins output_sel_0/led_b]
+    connect_bd_net -net output_sel_0_led_g [get_bd_pins led_g] [get_bd_pins output_sel_0/led_g]
+    connect_bd_net -net output_sel_0_led_r [get_bd_pins led_r] [get_bd_pins output_sel_0/led_r]
+    connect_bd_net -net proc_sys_reset_1_peripheral_aresetn [get_bd_pins aresetn] [get_bd_pins balance_controller_0/aresetn] [get_bd_pins edge_detector_trigger_0/resetn] [get_bd_pins moving_average_0/aresetn] [get_bd_pins output_sel_0/aresetn] [get_bd_pins reverb_0/aresetn] [get_bd_pins volume_controller_0/aresetn]
+
+    # Restore current instance
+    current_bd_instance $oldCurInst
+  }
+  
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Hierarchical Cell: path_1
+  # ─────────────────────────────────────────────────────────────────────────────
 proc create_hier_cell_path_1 { parentCell nameHier } {
 
   variable script_folder
@@ -1161,6 +991,7 @@ proc create_hier_cell_path_1 { parentCell nameHier } {
   close_bd_design $design_name 
 }
 # End of cr_bd_design_1()
+
 cr_bd_design_1 ""
 set_property REGISTERED_WITH_MANAGER "1" [get_files design_1.bd ] 
 set_property SYNTH_CHECKPOINT_MODE "Hierarchical" [get_files design_1.bd ] 
