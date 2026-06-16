@@ -33,44 +33,33 @@ Both paths share the same I2S audio input. Path 1 drives the 7-segment display (
 
 ![System Architecture](./docs/top.svg)
 
-**Interfaces used:**
 
-| Peripheral | Protocol | Role |
-|---|---|---|
-| Pmod I2S2 | I²S / AXIS | Audio input and output |
-| Pmod JSTK2 | SPI / AXIS | Joystick + RGB LED control |
-| PC ↔ FPGA | UART 2 Mbaud | Commands in, compressed audio out |
-| 7-Segment Display | GPIO (multiplexed) | Countdown timer |
-| 16 on-board LEDs | GPIO | VU-meter |
 
 ## Building the Vivado Project
 
 ### Prerequisites
 
 - Vivado 2020.2
-- Digilent board files installed (for Basys 3 support)
+- Digilent board files installed (for Basys3 support)
 - A Basys3 board connected via USB-JTAG
 
 ### Steps
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/<your-org>/<your-repo>.git
-   cd <your-repo>
-   ```
+
 2. **Source Vivado**
-   ```
-   source \path\to\Vivado\settings64.sh
-   ```
 
 3. **Makefile targets**
 
    ```bash
    make                # synthesise, implement, and generate the bitstream (default)
-   make program        # program the bitstream on the connected Basys 3 over JTAG
    make record t=10    # run the Python recording script for 10 seconds
    make clean          # remove all build artefacts
    ```
+
+4. **Program the FPGA** \
+   Enter *Vivado HW Manager* and program the FPGA with the .bit file generated at: \
+   `<your_repo_path>/build/<PRJ_NAME>.runs/impl_1/<your_bitstream>.bit`
 
 ## Module Reference
 
@@ -80,30 +69,21 @@ Path 1 lets a PC start and stop timed audio recordings. Commands arrive over UAR
 
 ![Path 1](./docs/path1.svg)
 
-#### DEPACKETIZER
- 
-> Parses 4-byte UART packets (`HEADER=0x69 | MIN | SEC | FOOTER=0x42`) and drives the acquisition FSM, asserting `send_audio` and loading the countdown on valid commands, while silently discarding malformed or out-of-range packets.
- 
----
- 
-#### FLOAT COMPRESSOR
- 
-> Compresses signed 24-bit PCM samples into a custom `[S | EXP(4) | MANTISSA(11)]` 16-bit floating-point format to reduce UART bandwidth, with configurable field widths via generics.
- 
----
- 
-#### SEND CONTROLLER
- 
-> Routes the compressed AXIS stream to the UART TX when `send_audio = 1`, and silently discards all transactions otherwise, respecting `TLAST`-delimited packet boundaries.
- 
----
- 
-#### 7SEGMENT CTRL
- 
-> Multiplexes the four `MM:SS` countdown digits onto the Basys 3 7-segment display by round-robin cycling through the active-low anode select (`AN[3:0]`) and segment cathode (`SEG[6:0]`) outputs fast enough for persistence of vision.
+##### FLOAT COMPRESSOR
+> Compresses signed 24-bit PCM samples into a custom 16-bit `[S(1) | EXP(4) | MANTISSA(11)]` floating-point format to reduce UART bandwidth, with all field widths configurable via generics.
  
 ---
 
+##### SEND CONTROLLER
+> Gates the compressed AXIS stream toward the UART TX when `send_audio = 1`, discarding all transactions otherwise while correctly tracking `TLAST`-delimited packet boundaries.
+
+---
+
+##### DEPACKETIZER
+ 
+> Parses 4-byte UART packets (`HEADER=0x69 | MIN | SEC | FOOTER=0x42`) and drives the acquisition FSM — asserting `send_audio` and loading the countdown on valid commands, silently discarding malformed, out-of-range, or mid-recording packets (except the `0x00 0x00` stop command).
+
+---
 
 ### Path 2 — Real-Time Audio Processing
 
@@ -111,7 +91,7 @@ Path 2 is the live effects chain. Audio flows left to right through the modules 
 
 ![Path 2](./docs/path2.svg)
 
-ontrols:
+Controls:
  
 | Control | Source |
 |---|---|
@@ -120,47 +100,54 @@ ontrols:
 | REVERB alpha / REVERB delay | JSTK X/Y when TRIG=1 |
 | BALANCE / VOLUME | JSTK X/Y when TRIG=0 |
 | Cycle OUTPUT SELECTOR mode | Rising edge of JSTK BTN |
- 
----
 
-#### DIGILENT JSTK2
-
-Interfaces with the Pmod JSTK2 over SPI via an AXI4-Stream SPI master.
-
-#### EFFECT SELECTOR
-
-Demultiplexes the joystick axes based on the trigger button state.
-
-#### REVERB
-
-Implements feedback delay (echo) independently on left and right channels.
+##### REVERB
+> Implements per-channel feedback delay (`y[n] = sat(x[n] + gain·y[n−delay])`) with joystick-controlled gain and delay depth, where `sat()` performs the same saturating clip used by VOLUME.
 
 ---
 
-#### MOVING AVERAGE
-
-Low-pass filter of fixed order 32. When `enable_filter = 0`, samples pass through unmodified.
-
----
-
-#### OUTPUT SELECTOR
-
-Cycles through 8 channel-mixing modes on each rising edge of `btn_jstk`. The active mode is reflected on the JSTK2 RGB LED.
+##### BALANCE
+> Attenuates the left channel when the joystick is pushed right and the right channel when pushed left, using the same exponential law as VOLUME.
 
 ---
 
-#### VOLUME 
+##### MOVING AVERAGE
+> Applies a 32-tap moving-average low-pass filter when `enable_filter` is high, and passes samples through unmodified when low.
 
-Applies an exponential gain to the audio, so perceived loudness scales linearly with the joystick position. The amplification factor doubles every `2^N` joystick units (generic `N`, default 6), centred at the joystick midpoint. Output saturates (clips) instead of wrapping.
+---
+
+##### OUTPUT SELECTOR
+> Cycles through eight stereo channel-mixing modes (normal, mute, mono-left, mono-right, sum, difference, and cross combinations) on each rising edge of `btn_jstk`, reflecting the active mode on the JSTK2 RGB LED.
+
+---
+
+##### VOLUME
+> Applies an exponential gain (doubling every `2^N` joystick units, generic `N = 6`) centred at the joystick midpoint, with saturating output to prevent wrapping.
 
 ### Shared Infrastructure
 
-#### AXI4-STREAM
-> All modules communicate over the standard AXI4-Stream protocol (`TDATA`, `TVALID`, `TREADY`, `TLAST`). An FSM-based handshake pattern is used throughout to ensure compliance without requiring one transaction per clock cycle.
+##### 7SEGMENT CTRL
+> Multiplexes the four `MM:SS` countdown digits onto the Basys 3 7-segment display by rapidly cycling the active-low anode select (`AN[3:0]`) and segment cathode (`SEG[6:0]`) outputs fast enough for persistence of vision.
 
-## Reports
+---
 
-Power and timing reports
+##### DIGILENT JSTK2
+> Bridges the Pmod JSTK2 over an AXI4-Stream SPI master, exposing `jstk_x[9:0]`, `jstk_y[9:0]`, `btn_jstk`, and `btn_trigger` as outputs while accepting `led_r/g/b[7:0]` to drive the joystick's RGB LED.
+
+---
+
+##### EFFECT SELECTOR
+> Demultiplexes the joystick axes based on `btn_trigger`: when high, X/Y control reverb alpha and delay; when low, X/Y control balance and volume — with the inactive pair latched at its last value.
+
+---
+
+##### LED LEVEL CONTROLLER
+> Averages the left and right channel magnitudes and drives the 16 on-board LEDs as a logarithmic VU-meter, with no LEDs lit below magnitude 28 and all 16 lit at saturation (224).
+
+---
+
+##### AXI4-STREAM (AXIS) Handshake
+> All modules communicate over standard AXI4-Stream (`TDATA`, `TVALID`, `TREADY`, `TLAST`) using an FSM-based handshake that does not require one transaction per clock cycle.
 
 ## Known Bugs
 
