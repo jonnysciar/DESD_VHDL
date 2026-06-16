@@ -11,7 +11,7 @@ if { [info exists ::origin_dir_loc] } {
 }
 
 # Set the project name
-set _xil_proj_name_ "lab_solution"
+set _xil_proj_name_ "prj"
 
 # Use project name variable, if specified in the tcl shell
 if { [info exists ::user_project_name] } {
@@ -105,152 +105,31 @@ if { $obj != {} } {
    update_ip_catalog -rebuild
 }
 
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
 # Import local files from the original project
 source "$origin_dir/scripts/modules.tcl"
-import $modules
-set imported_files [import_files -fileset sources_1 $modules]
-
-# -----------------------------------------------------------------------------
-# UNDER SCRUTINY
-# -----------------------------------------------------------------------------
-
-# Set 'sources_1' fileset file properties for local files
-set file "hdl/led_level_controller.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/digilent_jstk2.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/effect_selector.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/driver_4_7_seg.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/moving_average.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/balance_controller.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/volume_multiplier.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/volume_saturator.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/volume_controller.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/edge_detector_trigger.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/output_sel.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/bram_controller.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/delay.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/reverb.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/float_compressor.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/axis_fifo.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/depacketizer.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/send_controller.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/division_lut.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/binary_to_decimal.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-set file "hdl/design_1_wrapper.vhd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
-
-
-# Set 'sources_1' fileset properties
-set obj [get_filesets sources_1]
-set_property -name "top" -value "design_1_wrapper" -objects $obj
-set_property -name "top_auto_set" -value "0" -objects $obj
-
-# -----------------------------------------------------------------------------
-# END SCRUTINY
-# -----------------------------------------------------------------------------
+import_files -fileset sources_1 $modules
 
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
   create_fileset -constrset constrs_1
 }
 
-# Set 'constrs_1' fileset object
-set obj [get_filesets constrs_1]
-
 # Add/Import constrs file and set constrs file properties
-set file "[file normalize ${origin_dir}/constraints/Basys3_Constraints.xdc]"
-set file_imported [import_files -fileset constrs_1 [list $file]]
-set file "constraints/Basys3_Constraints.xdc"
-set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
-set_property -name "file_type" -value "XDC" -objects $file_obj
+set basys3_xdc "[file normalize ${origin_dir}/constraints/basys3_pins.xdc]"
+import_files -fileset constrs_1 -force $basys3_xdc
 
-# Set 'constrs_1' fileset properties
-set obj [get_filesets constrs_1]
-
-# -----------------------------------------------------------------------------
-# ADD IMPL CONSTRAINTS
-# -----------------------------------------------------------------------------
+set impl_opt_xdc "[file normalize ${origin_dir}/constraints/impl_opt.xdc]"
+import_files -fileset constrs_1 -force $impl_opt_xdc
 
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
   create_fileset -simset sim_1
 }
 
-# Set 'sim_1' fileset object
-set obj [get_filesets sim_1]
-# Empty (no sources present)
-
-# Set 'utils_1' fileset object
-set obj [get_filesets utils_1]
-# Empty (no sources present)
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Proc to create BD design_1
 # ─────────────────────────────────────────────────────────────────────────────
 proc cr_bd_design_1 { parentCell } {
-  # Change design name here
   set design_name design_1
 
   common::send_gid_msg -ssname BD::TCL -id 2010 -severity "INFO" "Currently there is no design <$design_name> in project, so creating one..."
@@ -384,21 +263,21 @@ proc cr_bd_design_1 { parentCell } {
     set_property -dict [ list \
     CONFIG.RESET_BOARD_INTERFACE {Custom} \
     CONFIG.USE_BOARD_FLOW {false} \
-  ] $proc_sys_reset_clk_i2c
+    ] $proc_sys_reset_clk_i2c
 
     # Create instance: proc_sys_reset_clk_out, and set properties
     set proc_sys_reset_clk_out [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_clk_out ]
     set_property -dict [ list \
     CONFIG.RESET_BOARD_INTERFACE {Custom} \
     CONFIG.USE_BOARD_FLOW {false} \
-  ] $proc_sys_reset_clk_out
+    ] $proc_sys_reset_clk_out
 
     # Create instance: proc_sys_reset_clk_uart, and set properties
     set proc_sys_reset_clk_uart [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_clk_uart ]
     set_property -dict [ list \
     CONFIG.RESET_BOARD_INTERFACE {Custom} \
     CONFIG.USE_BOARD_FLOW {false} \
-  ] $proc_sys_reset_clk_uart
+    ] $proc_sys_reset_clk_uart
 
     # Create port connections
     connect_bd_net -net clk_wiz_clk_i2s [get_bd_pins clk_i2s] [get_bd_pins proc_sys_reset_clk_i2c/slowest_sync_clk]
@@ -513,9 +392,10 @@ proc cr_bd_design_1 { parentCell } {
       catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
       return 1
     }
-      set_property -dict [ list \
+    
+    set_property -dict [ list \
     CONFIG.LOWER_BOUND {-8388608} \
-  ] $output_sel_0
+    ] $output_sel_0
 
     # Create instance: reverb_0, and set properties
     set block_name reverb
@@ -527,10 +407,11 @@ proc cr_bd_design_1 { parentCell } {
       catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
       return 1
     }
-      set_property -dict [ list \
+    
+    set_property -dict [ list \
     CONFIG.LOG2_DELAY_INCR {4} \
     CONFIG.LOWER_BOUND {-8388608} \
-  ] $reverb_0
+    ] $reverb_0
 
     # Create instance: volume_controller_0, and set properties
     set block_name volume_controller
@@ -542,9 +423,10 @@ proc cr_bd_design_1 { parentCell } {
       catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
       return 1
     }
-      set_property -dict [ list \
+    
+    set_property -dict [ list \
     CONFIG.LOWER_BOUND {-8388608} \
-  ] $volume_controller_0
+    ] $volume_controller_0
 
     # Create interface connections
     connect_bd_intf_net -intf_net balance_controller_0_m_axis [get_bd_intf_pins balance_controller_0/m_axis] [get_bd_intf_pins volume_controller_0/s_axis]
@@ -576,124 +458,126 @@ proc cr_bd_design_1 { parentCell } {
   # ─────────────────────────────────────────────────────────────────────────────
   # Hierarchical Cell: path_1
   # ─────────────────────────────────────────────────────────────────────────────
-proc create_hier_cell_path_1 { parentCell nameHier } {
+  proc create_hier_cell_path_1 { parentCell nameHier } {
 
-  variable script_folder
+    variable script_folder
 
-  if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_path_1() - Empty argument(s)!"}
-     return
-  }
+    if { $parentCell eq "" || $nameHier eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_path_1() - Empty argument(s)!"}
+      return
+    }
 
-  # Get object for parentCell
-  set parentObj [get_bd_cells $parentCell]
-  if { $parentObj == "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
-     return
-  }
+    # Get object for parentCell
+    set parentObj [get_bd_cells $parentCell]
+    if { $parentObj == "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
+      return
+    }
 
-  # Make sure parentObj is hier blk
-  set parentType [get_property TYPE $parentObj]
-  if { $parentType ne "hier" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
-     return
-  }
+    # Make sure parentObj is hier blk
+    set parentType [get_property TYPE $parentObj]
+    if { $parentType ne "hier" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+      return
+    }
 
-  # Save current instance; Restore later
-  set oldCurInst [current_bd_instance .]
+    # Save current instance; Restore later
+    set oldCurInst [current_bd_instance .]
 
-  # Set parent object as current
-  current_bd_instance $parentObj
+    # Set parent object as current
+    current_bd_instance $parentObj
 
-  # Create cell and set as current instance
-  set hier_obj [create_bd_cell -type hier $nameHier]
-  current_bd_instance $hier_obj
+    # Create cell and set as current instance
+    set hier_obj [create_bd_cell -type hier $nameHier]
+    current_bd_instance $hier_obj
 
-  # Create interface pins
-  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 M_AXIS
+    # Create interface pins
+    create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 M_AXIS
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 s_axis
+    create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 s_axis
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 s_axis1
+    create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 s_axis1
 
 
-  # Create pins
-  create_bd_pin -dir I -type clk aclk
-  create_bd_pin -dir I -type rst aresetn
-  create_bd_pin -dir O -from 6 -to 0 remaining_minutes
-  create_bd_pin -dir O -from 6 -to 0 remaining_seconds
+    # Create pins
+    create_bd_pin -dir I -type clk aclk
+    create_bd_pin -dir I -type rst aresetn
+    create_bd_pin -dir O -from 6 -to 0 remaining_minutes
+    create_bd_pin -dir O -from 6 -to 0 remaining_seconds
 
-  # Create instance: axis_dwidth_converter_0, and set properties
-  set axis_dwidth_converter_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_dwidth_converter:1.1 axis_dwidth_converter_0 ]
-  set_property -dict [ list \
-   CONFIG.M_TDATA_NUM_BYTES {1} \
- ] $axis_dwidth_converter_0
-
-  # Create instance: axis_fifo_0, and set properties
-  set block_name axis_fifo
-  set block_cell_name axis_fifo_0
-  if { [catch {set axis_fifo_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $axis_fifo_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: depacketizer_0, and set properties
-  set block_name depacketizer
-  set block_cell_name depacketizer_0
-  if { [catch {set depacketizer_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $depacketizer_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
+    # Create instance: axis_dwidth_converter_0, and set properties
+    set axis_dwidth_converter_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_dwidth_converter:1.1 axis_dwidth_converter_0 ]
     set_property -dict [ list \
-   CONFIG.CLK_FREQ_HZ {200000000} \
- ] $depacketizer_0
+    CONFIG.M_TDATA_NUM_BYTES {1} \
+    ] $axis_dwidth_converter_0
 
-  # Create instance: float_compressor_0, and set properties
-  set block_name float_compressor
-  set block_cell_name float_compressor_0
-  if { [catch {set float_compressor_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $float_compressor_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: send_controller_0, and set properties
-  set block_name send_controller
-  set block_cell_name send_controller_0
-  if { [catch {set send_controller_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $send_controller_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create interface connections
-  connect_bd_intf_net -intf_net AXI4Stream_UART_0_M00_AXIS_RX [get_bd_intf_pins s_axis1] [get_bd_intf_pins depacketizer_0/s_axis]
-  connect_bd_intf_net -intf_net axis_broadcaster_0_M01_AXIS [get_bd_intf_pins s_axis] [get_bd_intf_pins axis_fifo_0/s_axis]
-  connect_bd_intf_net -intf_net axis_dwidth_converter_0_M_AXIS [get_bd_intf_pins M_AXIS] [get_bd_intf_pins axis_dwidth_converter_0/M_AXIS]
-  connect_bd_intf_net -intf_net float_compressor_0_m_axis [get_bd_intf_pins float_compressor_0/m_axis] [get_bd_intf_pins send_controller_0/s_axis]
-  connect_bd_intf_net -intf_net send_controller_0_m_axis [get_bd_intf_pins axis_dwidth_converter_0/S_AXIS] [get_bd_intf_pins send_controller_0/m_axis]
-  connect_bd_intf_net -intf_net split_m_axis [get_bd_intf_pins axis_fifo_0/m_axis] [get_bd_intf_pins float_compressor_0/s_axis]
+    # Create instance: axis_fifo_0, and set properties
+    set block_name axis_fifo
+    set block_cell_name axis_fifo_0
+    if { [catch {set axis_fifo_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $axis_fifo_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+    
+    # Create instance: depacketizer_0, and set properties
+    set block_name depacketizer
+    set block_cell_name depacketizer_0
+    if { [catch {set depacketizer_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $depacketizer_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+      
+    set_property -dict [ list \
+    CONFIG.CLK_FREQ_HZ {200000000} \
+    ] $depacketizer_0
 
-  # Create port connections
-  connect_bd_net -net clk_wiz_clk_out [get_bd_pins aclk] [get_bd_pins axis_dwidth_converter_0/aclk] [get_bd_pins axis_fifo_0/aclk] [get_bd_pins depacketizer_0/aclk] [get_bd_pins float_compressor_0/aclk] [get_bd_pins send_controller_0/aclk]
-  connect_bd_net -net depacketizer_0_remaining_minutes [get_bd_pins remaining_minutes] [get_bd_pins depacketizer_0/remaining_minutes]
-  connect_bd_net -net depacketizer_0_remaining_seconds [get_bd_pins remaining_seconds] [get_bd_pins depacketizer_0/remaining_seconds]
-  connect_bd_net -net depacketizer_0_send_audio [get_bd_pins depacketizer_0/send_audio] [get_bd_pins send_controller_0/send_audio]
-  connect_bd_net -net proc_sys_reset_1_peripheral_aresetn [get_bd_pins aresetn] [get_bd_pins axis_dwidth_converter_0/aresetn] [get_bd_pins axis_fifo_0/aresetn] [get_bd_pins depacketizer_0/aresetn] [get_bd_pins float_compressor_0/aresetn] [get_bd_pins send_controller_0/aresetn]
+    # Create instance: float_compressor_0, and set properties
+    set block_name float_compressor
+    set block_cell_name float_compressor_0
+    if { [catch {set float_compressor_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $float_compressor_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+    
+    # Create instance: send_controller_0, and set properties
+    set block_name send_controller
+    set block_cell_name send_controller_0
+    if { [catch {set send_controller_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    } elseif { $send_controller_0 eq "" } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+      return 1
+    }
+    
+    # Create interface connections
+    connect_bd_intf_net -intf_net AXI4Stream_UART_0_M00_AXIS_RX [get_bd_intf_pins s_axis1] [get_bd_intf_pins depacketizer_0/s_axis]
+    connect_bd_intf_net -intf_net axis_broadcaster_0_M01_AXIS [get_bd_intf_pins s_axis] [get_bd_intf_pins axis_fifo_0/s_axis]
+    connect_bd_intf_net -intf_net axis_dwidth_converter_0_M_AXIS [get_bd_intf_pins M_AXIS] [get_bd_intf_pins axis_dwidth_converter_0/M_AXIS]
+    connect_bd_intf_net -intf_net float_compressor_0_m_axis [get_bd_intf_pins float_compressor_0/m_axis] [get_bd_intf_pins send_controller_0/s_axis]
+    connect_bd_intf_net -intf_net send_controller_0_m_axis [get_bd_intf_pins axis_dwidth_converter_0/S_AXIS] [get_bd_intf_pins send_controller_0/m_axis]
+    connect_bd_intf_net -intf_net split_m_axis [get_bd_intf_pins axis_fifo_0/m_axis] [get_bd_intf_pins float_compressor_0/s_axis]
 
-  # Restore current instance
-  current_bd_instance $oldCurInst
-}
+    # Create port connections
+    connect_bd_net -net clk_wiz_clk_out [get_bd_pins aclk] [get_bd_pins axis_dwidth_converter_0/aclk] [get_bd_pins axis_fifo_0/aclk] [get_bd_pins depacketizer_0/aclk] [get_bd_pins float_compressor_0/aclk] [get_bd_pins send_controller_0/aclk]
+    connect_bd_net -net depacketizer_0_remaining_minutes [get_bd_pins remaining_minutes] [get_bd_pins depacketizer_0/remaining_minutes]
+    connect_bd_net -net depacketizer_0_remaining_seconds [get_bd_pins remaining_seconds] [get_bd_pins depacketizer_0/remaining_seconds]
+    connect_bd_net -net depacketizer_0_send_audio [get_bd_pins depacketizer_0/send_audio] [get_bd_pins send_controller_0/send_audio]
+    connect_bd_net -net proc_sys_reset_1_peripheral_aresetn [get_bd_pins aresetn] [get_bd_pins axis_dwidth_converter_0/aresetn] [get_bd_pins axis_fifo_0/aresetn] [get_bd_pins depacketizer_0/aresetn] [get_bd_pins float_compressor_0/aresetn] [get_bd_pins send_controller_0/aresetn]
+
+    # Restore current instance
+    current_bd_instance $oldCurInst
+  }
+
   variable script_folder
 
   if { $parentCell eq "" } {
@@ -735,8 +619,8 @@ proc create_hier_cell_path_1 { parentCell nameHier } {
   set led [ create_bd_port -dir O -from 15 -to 0 led ]
   set reset [ create_bd_port -dir I -type rst reset ]
   set_property -dict [ list \
-   CONFIG.POLARITY {ACTIVE_HIGH} \
- ] $reset
+    CONFIG.POLARITY {ACTIVE_HIGH} \
+  ] $reset
   set rx_lrck_0 [ create_bd_port -dir O rx_lrck_0 ]
   set rx_mclk_0 [ create_bd_port -dir O rx_mclk_0 ]
   set rx_sclk_0 [ create_bd_port -dir O rx_sclk_0 ]
@@ -744,8 +628,8 @@ proc create_hier_cell_path_1 { parentCell nameHier } {
   set seg [ create_bd_port -dir O -from 0 -to 6 seg ]
   set sys_clock [ create_bd_port -dir I -type clk -freq_hz 100000000 sys_clock ]
   set_property -dict [ list \
-   CONFIG.PHASE {0.000} \
- ] $sys_clock
+    CONFIG.PHASE {0.000} \
+  ] $sys_clock
   set tx_lrck_0 [ create_bd_port -dir O tx_lrck_0 ]
   set tx_mclk_0 [ create_bd_port -dir O tx_mclk_0 ]
   set tx_sclk_0 [ create_bd_port -dir O tx_sclk_0 ]
@@ -754,47 +638,47 @@ proc create_hier_cell_path_1 { parentCell nameHier } {
   # Create instance: AXI4Stream_UART_0, and set properties
   set AXI4Stream_UART_0 [ create_bd_cell -type ip -vlnv DigiLAB:ip:AXI4Stream_UART:1.1 AXI4Stream_UART_0 ]
   set_property -dict [ list \
-   CONFIG.UART_BAUD_RATE {2000000} \
-   CONFIG.UART_BOARD_INTERFACE {usb_uart} \
-   CONFIG.USE_BOARD_FLOW {true} \
- ] $AXI4Stream_UART_0
+    CONFIG.UART_BAUD_RATE {2000000} \
+    CONFIG.UART_BOARD_INTERFACE {usb_uart} \
+    CONFIG.USE_BOARD_FLOW {true} \
+  ] $AXI4Stream_UART_0
 
   # Create instance: axi4stream_spi_master_0, and set properties
   set axi4stream_spi_master_0 [ create_bd_cell -type ip -vlnv DigiLAB:ip:axi4stream_spi_master:1.0 axi4stream_spi_master_0 ]
   set_property -dict [ list \
-   CONFIG.c_clkfreq {200000000} \
-   CONFIG.c_sclkfreq {5000} \
- ] $axi4stream_spi_master_0
+    CONFIG.c_clkfreq {200000000} \
+    CONFIG.c_sclkfreq {5000} \
+  ] $axi4stream_spi_master_0
 
   # Create instance: axis_broadcaster_0, and set properties
   set axis_broadcaster_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 axis_broadcaster_0 ]
   set_property -dict [ list \
-   CONFIG.HAS_TKEEP {0} \
-   CONFIG.HAS_TLAST {1} \
-   CONFIG.HAS_TREADY {1} \
-   CONFIG.HAS_TSTRB {0} \
-   CONFIG.M_TDATA_NUM_BYTES {3} \
-   CONFIG.M_TUSER_WIDTH {0} \
-   CONFIG.S_TDATA_NUM_BYTES {3} \
-   CONFIG.S_TUSER_WIDTH {0} \
-   CONFIG.TDEST_WIDTH {0} \
-   CONFIG.TID_WIDTH {0} \
- ] $axis_broadcaster_0
+    CONFIG.HAS_TKEEP {0} \
+    CONFIG.HAS_TLAST {1} \
+    CONFIG.HAS_TREADY {1} \
+    CONFIG.HAS_TSTRB {0} \
+    CONFIG.M_TDATA_NUM_BYTES {3} \
+    CONFIG.M_TUSER_WIDTH {0} \
+    CONFIG.S_TDATA_NUM_BYTES {3} \
+    CONFIG.S_TUSER_WIDTH {0} \
+    CONFIG.TDEST_WIDTH {0} \
+    CONFIG.TID_WIDTH {0} \
+  ] $axis_broadcaster_0
 
   # Create instance: axis_broadcaster_1, and set properties
   set axis_broadcaster_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 axis_broadcaster_1 ]
   set_property -dict [ list \
-   CONFIG.HAS_TKEEP {0} \
-   CONFIG.HAS_TLAST {1} \
-   CONFIG.HAS_TREADY {1} \
-   CONFIG.HAS_TSTRB {0} \
-   CONFIG.M_TDATA_NUM_BYTES {3} \
-   CONFIG.M_TUSER_WIDTH {0} \
-   CONFIG.S_TDATA_NUM_BYTES {3} \
-   CONFIG.S_TUSER_WIDTH {0} \
-   CONFIG.TDEST_WIDTH {0} \
-   CONFIG.TID_WIDTH {0} \
- ] $axis_broadcaster_1
+    CONFIG.HAS_TKEEP {0} \
+    CONFIG.HAS_TLAST {1} \
+    CONFIG.HAS_TREADY {1} \
+    CONFIG.HAS_TSTRB {0} \
+    CONFIG.M_TDATA_NUM_BYTES {3} \
+    CONFIG.M_TUSER_WIDTH {0} \
+    CONFIG.S_TDATA_NUM_BYTES {3} \
+    CONFIG.S_TUSER_WIDTH {0} \
+    CONFIG.TDEST_WIDTH {0} \
+    CONFIG.TID_WIDTH {0} \
+  ] $axis_broadcaster_1
 
   # Create instance: axis_dual_i2s_0, and set properties
   set axis_dual_i2s_0 [ create_bd_cell -type ip -vlnv DigiLAB:ip:axis_dual_i2s:1.0 axis_dual_i2s_0 ]
@@ -803,117 +687,120 @@ proc create_hier_cell_path_1 { parentCell nameHier } {
   set block_name binary_to_decimal
   set block_cell_name binary_to_decimal_0
   if { [catch {set binary_to_decimal_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $binary_to_decimal_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
+    catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  } elseif { $binary_to_decimal_0 eq "" } {
+    catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  }
   
   # Create instance: binary_to_decimal_1, and set properties
   set block_name binary_to_decimal
   set block_cell_name binary_to_decimal_1
   if { [catch {set binary_to_decimal_1 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $binary_to_decimal_1 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
+    catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  } elseif { $binary_to_decimal_1 eq "" } {
+    catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  }
   
   # Create instance: clk_wiz, and set properties
   set clk_wiz [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_wiz ]
   set_property -dict [ list \
-   CONFIG.CLKOUT1_DRIVES {BUFG} \
-   CONFIG.CLKOUT1_JITTER {143.752} \
-   CONFIG.CLKOUT1_PHASE_ERROR {98.575} \
-   CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {64} \
-   CONFIG.CLKOUT2_DRIVES {BUFG} \
-   CONFIG.CLKOUT2_JITTER {178.715} \
-   CONFIG.CLKOUT2_PHASE_ERROR {98.575} \
-   CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {22.579} \
-   CONFIG.CLKOUT2_USED {true} \
-   CONFIG.CLKOUT3_DRIVES {BUFG} \
-   CONFIG.CLKOUT3_JITTER {114.829} \
-   CONFIG.CLKOUT3_PHASE_ERROR {98.575} \
-   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {200} \
-   CONFIG.CLKOUT3_USED {true} \
-   CONFIG.CLKOUT4_DRIVES {BUFG} \
-   CONFIG.CLKOUT5_DRIVES {BUFG} \
-   CONFIG.CLKOUT6_DRIVES {BUFG} \
-   CONFIG.CLKOUT7_DRIVES {BUFG} \
-   CONFIG.CLK_IN1_BOARD_INTERFACE {sys_clock} \
-   CONFIG.CLK_OUT1_PORT {clk_uart} \
-   CONFIG.CLK_OUT2_PORT {clk_i2s} \
-   CONFIG.CLK_OUT3_PORT {clk_out} \
-   CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
-   CONFIG.MMCM_BANDWIDTH {OPTIMIZED} \
-   CONFIG.MMCM_CLKFBOUT_MULT_F {10.000} \
-   CONFIG.MMCM_CLKOUT0_DIVIDE_F {15.625} \
-   CONFIG.MMCM_CLKOUT1_DIVIDE {44} \
-   CONFIG.MMCM_CLKOUT2_DIVIDE {5} \
-   CONFIG.MMCM_COMPENSATION {ZHOLD} \
-   CONFIG.MMCM_DIVCLK_DIVIDE {1} \
-   CONFIG.NUM_OUT_CLKS {3} \
-   CONFIG.PRIMITIVE {MMCM} \
-   CONFIG.PRIM_IN_FREQ {100.000} \
-   CONFIG.RESET_BOARD_INTERFACE {reset} \
-   CONFIG.USE_BOARD_FLOW {true} \
- ] $clk_wiz
+    CONFIG.CLKOUT1_DRIVES {BUFG} \
+    CONFIG.CLKOUT1_JITTER {143.752} \
+    CONFIG.CLKOUT1_PHASE_ERROR {98.575} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {64} \
+    CONFIG.CLKOUT2_DRIVES {BUFG} \
+    CONFIG.CLKOUT2_JITTER {178.715} \
+    CONFIG.CLKOUT2_PHASE_ERROR {98.575} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {22.579} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT3_DRIVES {BUFG} \
+    CONFIG.CLKOUT3_JITTER {114.829} \
+    CONFIG.CLKOUT3_PHASE_ERROR {98.575} \
+    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {200} \
+    CONFIG.CLKOUT3_USED {true} \
+    CONFIG.CLKOUT4_DRIVES {BUFG} \
+    CONFIG.CLKOUT5_DRIVES {BUFG} \
+    CONFIG.CLKOUT6_DRIVES {BUFG} \
+    CONFIG.CLKOUT7_DRIVES {BUFG} \
+    CONFIG.CLK_IN1_BOARD_INTERFACE {sys_clock} \
+    CONFIG.CLK_OUT1_PORT {clk_uart} \
+    CONFIG.CLK_OUT2_PORT {clk_i2s} \
+    CONFIG.CLK_OUT3_PORT {clk_out} \
+    CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
+    CONFIG.MMCM_BANDWIDTH {OPTIMIZED} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {10.000} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {15.625} \
+    CONFIG.MMCM_CLKOUT1_DIVIDE {44} \
+    CONFIG.MMCM_CLKOUT2_DIVIDE {5} \
+    CONFIG.MMCM_COMPENSATION {ZHOLD} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
+    CONFIG.NUM_OUT_CLKS {3} \
+    CONFIG.PRIMITIVE {MMCM} \
+    CONFIG.PRIM_IN_FREQ {100.000} \
+    CONFIG.RESET_BOARD_INTERFACE {reset} \
+    CONFIG.USE_BOARD_FLOW {true} \
+  ] $clk_wiz
 
   # Create instance: digilent_jstk2_0, and set properties
   set block_name digilent_jstk2
   set block_cell_name digilent_jstk2_0
   if { [catch {set digilent_jstk2_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $digilent_jstk2_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-    set_property -dict [ list \
-   CONFIG.CLKFREQ {200000000} \
-   CONFIG.SPI_SCLKFREQ {5000} \
- ] $digilent_jstk2_0
+    catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  } elseif { $digilent_jstk2_0 eq "" } {
+    catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  }
+
+  set_property -dict [ list \
+    CONFIG.CLKFREQ {200000000} \
+    CONFIG.SPI_SCLKFREQ {5000} \
+  ] $digilent_jstk2_0
 
   # Create instance: driver_4_7seg_0, and set properties
   set block_name driver_4_7seg
   set block_cell_name driver_4_7seg_0
   if { [catch {set driver_4_7seg_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $driver_4_7seg_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-    set_property -dict [ list \
-   CONFIG.clock_period_ns {5} \
- ] $driver_4_7seg_0
+    catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  } elseif { $driver_4_7seg_0 eq "" } {
+    catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  }
+  
+  set_property -dict [ list \
+    CONFIG.clock_period_ns {5} \
+  ] $driver_4_7seg_0
 
   # Create instance: effect_selector_0, and set properties
   set block_name effect_selector
   set block_cell_name effect_selector_0
   if { [catch {set effect_selector_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $effect_selector_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
+    catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  } elseif { $effect_selector_0 eq "" } {
+    catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  }
   
   # Create instance: led_level_controller_0, and set properties
   set block_name led_level_controller
   set block_cell_name led_level_controller_0
   if { [catch {set led_level_controller_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $led_level_controller_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-    set_property -dict [ list \
-   CONFIG.clock_period_ns {5} \
- ] $led_level_controller_0
+    catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  } elseif { $led_level_controller_0 eq "" } {
+    catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+    return 1
+  }
+  
+  set_property -dict [ list \
+    CONFIG.clock_period_ns {5} \
+  ] $led_level_controller_0
 
   # Create instance: path_1
   create_hier_cell_path_1 [current_bd_instance .] path_1
@@ -998,11 +885,12 @@ set_property SYNTH_CHECKPOINT_MODE "Hierarchical" [get_files design_1.bd ]
 
 # Create 'synth_1' run (if not found)
 if {[string equal [get_runs -quiet synth_1] ""]} {
-    create_run -name synth_1 -part xc7a35tcpg236-1 -flow {Vivado Synthesis 2020} -strategy "Vivado Synthesis Defaults" -report_strategy {No Reports} -constrset constrs_1
+  create_run -name synth_1 -part xc7a35tcpg236-1 -flow {Vivado Synthesis 2020} -strategy "Vivado Synthesis Defaults" -report_strategy {No Reports} -constrset constrs_1
 } else {
   set_property strategy "Vivado Synthesis Defaults" [get_runs synth_1]
   set_property flow "Vivado Synthesis 2020" [get_runs synth_1]
 }
+
 set obj [get_runs synth_1]
 set_property set_report_strategy_name 1 $obj
 set_property report_strategy {Vivado Synthesis Default Reports} $obj
@@ -1023,7 +911,7 @@ current_run -synthesis [get_runs synth_1]
 
 # Create 'impl_1' run (if not found)
 if {[string equal [get_runs -quiet impl_1] ""]} {
-    create_run -name impl_1 -part xc7a35tcpg236-1 -flow {Vivado Implementation 2020} -strategy "Vivado Implementation Defaults" -report_strategy {No Reports} -constrset constrs_1 -parent_run synth_1
+  create_run -name impl_1 -part xc7a35tcpg236-1 -flow {Vivado Implementation 2020} -strategy "Vivado Implementation Defaults" -report_strategy {No Reports} -constrset constrs_1 -parent_run synth_1
 } else {
   set_property strategy "Vivado Implementation Defaults" [get_runs impl_1]
   set_property flow "Vivado Implementation 2020" [get_runs impl_1]
