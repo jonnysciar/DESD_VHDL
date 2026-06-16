@@ -118,9 +118,6 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 set basys3_xdc "[file normalize ${origin_dir}/constraints/basys3_pins.xdc]"
 import_files -fileset constrs_1 -force $basys3_xdc
 
-set impl_opt_xdc "[file normalize ${origin_dir}/constraints/impl_opt.xdc]"
-import_files -fileset constrs_1 -force $impl_opt_xdc
-
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
   create_fileset -simset sim_1

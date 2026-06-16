@@ -21,6 +21,13 @@ puts "-----------------------------------------"
 puts "   STARTING IMPLEMENTATION & BITSTREAM   "
 puts "-----------------------------------------"
 # The -to_step flag tells it to run all implementation steps AND generate the .bit file
+
+# Apply Performance_Explore to the implementation steps for 'impl_1'
+set_property STEPS.OPT_DESIGN.ARGS.DIRECTIVE Performance_Explore [get_runs impl_1]
+set_property STEPS.PLACE_DESIGN.ARGS.DIRECTIVE Performance_Explore [get_runs impl_1]
+set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE Performance_Explore [get_runs impl_1]
+set_property STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE Performance_Explore [get_runs impl_1]
+
 launch_runs impl_1 -to_step write_bitstream -jobs 4
 wait_on_run impl_1
 
