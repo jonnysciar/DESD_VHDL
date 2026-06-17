@@ -1,4 +1,4 @@
-![Create Go App](./docs/logo.svg)
+![](./docs/logo.svg)
 
 # Digital Electronic System Design — Lab Project
 
@@ -17,10 +17,8 @@
    - [Path 1 — UART-Controlled Audio Acquisition](#path-1--uart-controlled-audio-acquisition)
    - [Path 2 — Real-Time Audio Processing](#path-2--real-time-audio-processing)
    - [Shared Infrastructure](#shared-infrastructure)
-5. [Reports](#reports)
-6. [Known Bugs](#known-bugs)
-7. [Grading Breakdown](#grading-breakdown)
-8. [Acknowledgements](#acknowledgements)
+5. [Known Bugs](#known-bugs)
+6. [Acknowledgements](#acknowledgements)
 
 ## Project Overview
 
@@ -39,9 +37,9 @@ Both paths share the same I2S audio input. Path 1 drives the 7-segment display (
  
 | Color | Meaning |
 |:---:|---|
-| <img src="./docs/rect1.svg" width="24" height="24" align="center"> | Custom modules available in this repository |
-| <img src="./docs/rect2.svg" width="24" height="24" align="center"> | IP cores provided by Vivado (no source needed) |
-| <img src="./docs/rect3.svg" width="24" height="24" align="center"> | Licence-protected modules — not included in this repository |
+| <img src="./docs/rect1.svg" width="24" height="24" vertical-align="center"> | Custom modules available in this repository |
+| <img src="./docs/rect2.svg" width="24" height="24" vertical-align="center"> | IP cores provided by Vivado (no source needed) |
+| <img src="./docs/rect3.svg" width="24" height="24" vertical-align="center"> | Licence-protected modules — not included in this repository |
 
 
 ## Building the Vivado Project
