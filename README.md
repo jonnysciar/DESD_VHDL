@@ -1,12 +1,12 @@
-![](./docs/logo.svg)
+# AXIngale
 
-# Digital Electronic System Design — Lab Project
+<img src="./docs/logo.png" width="300" align="right" />
 
-*Course: Digital Electronics Systems Design* \
+*A real-time audio effects processor with joystick control on Digilent Basys-3*
+
+*Course: Digital Electronics Systems Design @ PoliMi* \
 *Group members: [jonnysciar](https://github.com/jonnysciar), [gmnapo](https://github.com/gmnapo), [damianopasquini02](https://github.com/damianopasquini02),* \
 *Academic year: 2025–2026*
-
----
 
 ## Table of Contents
 
@@ -47,8 +47,8 @@ Both paths share the same I2S audio input. Path 1 drives the 7-segment display (
 ### Prerequisites
 
 - Vivado 2020.2
-- Digilent board files installed (for Basys3 support)
-- A Basys3 board, with a Pmod JSTK2 and Pmod I2S2 peripherals
+- Digilent board files installed (for Basys-3 support)
+- A Basys-3 board, with a Pmod JSTK2 and Pmod I2S2 peripherals
 
 ### Steps
 
@@ -65,8 +65,8 @@ Both paths share the same I2S audio input. Path 1 drives the 7-segment display (
    ```
 
 4. **Program the FPGA** \
-   Connect the Basys3 board to the PC via the USB-JTAG Cable. \
-   Enter *Vivado HW Manager* and program the FPGA with the .bit file generated under the folder: \
+   Connect the Basys-3 board to the PC via the USB-JTAG Cable. \
+   Enter *Vivado HW Manager* and program the FPGA with the .bit file generated in the folder: \
    `<REPO_PATH>/build/<PRJ_NAME>.runs/impl_1/`
 
 ## Module Reference
@@ -134,8 +134,8 @@ Path 2 is the live effects chain. Audio flows left to right through the modules 
 
 ### Shared Infrastructure
 
-##### 7SEGMENT DRIVER
-> Multiplexes the four `MM:SS` countdown digits onto the Basys 3 7-segment display by rapidly cycling the active-low anode select (`AN[3:0]`) and segment cathode (`SEG[6:0]`) outputs fast enough for persistence of vision.
+##### 7-SEGMENT DRIVER
+> Multiplexes the four `MM:SS` countdown digits onto the Basys-3 7-segment display by rapidly cycling the active-low anode select (`AN[3:0]`) and segment cathode (`SEG[6:0]`) outputs fast enough for persistence of vision.
 
 ---
 
