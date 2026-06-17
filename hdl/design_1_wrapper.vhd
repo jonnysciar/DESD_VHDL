@@ -1,12 +1,3 @@
---Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
-----------------------------------------------------------------------------------
---Tool Version: Vivado v.2020.2 (lin64) Build 3064766 Wed Nov 18 09:12:47 MST 2020
---Date        : Mon Apr 13 13:14:01 2026
---Host        : gbonanno-b450gamingx running 64-bit Ubuntu 24.04.2 LTS
---Command     : generate_target design_1_wrapper.bd
---Design      : design_1_wrapper
---Purpose     : IP block netlist
-----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 library UNISIM;

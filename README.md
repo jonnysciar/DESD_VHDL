@@ -7,7 +7,7 @@
 *A real-time audio effects processor with joystick control on the Digilent Basys-3 FPGA.*
 
 *Course: Digital Electronics Systems Design @ PoliMi* \
-*Group members: [jonnysciar](https://github.com/jonnysciar), [gmnapo](https://github.com/gmnapo), [damianopasquini02](https://github.com/damianopasquini02),* \
+*Group members: [jonnysciar](https://github.com/jonnysciar), [gmnapo](https://github.com/gmnapo), [damianopasquini02](https://github.com/damianopasquini02), Rin* \
 *Academic year: 2025–2026*
 
 </div>
