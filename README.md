@@ -1,3 +1,5 @@
+![Create Go App](./docs/logo.svg)
+
 # Digital Electronic System Design — Lab Project
 
 *Course: Digital Electronics Systems Design* \
@@ -37,9 +39,9 @@ Both paths share the same I2S audio input. Path 1 drives the 7-segment display (
  
 | Color | Meaning |
 |:---:|---|
-| <span style="display:inline-block; width:24px; height:24px; background-color: #FDBA74; vertical-align: middle;"></span> | Custom modules available in this repository |
-| <span style="display:inline-block; width:24px; height:24px; background-color: #DFEBF8; vertical-align: middle;"></span> | IP cores provided by Vivado (no source needed) |
-| <span style="display:inline-block; width:24px; height:24px; background-color: #FEE2E2; vertical-align: middle;"></span> | Licence-protected modules — not included in this repository |
+| <img src="./docs/rect1.svg" width="24" height="24" align="center"> | Custom modules available in this repository |
+| <img src="./docs/rect2.svg" width="24" height="24" align="center"> | IP cores provided by Vivado (no source needed) |
+| <img src="./docs/rect3.svg" width="24" height="24" align="center"> | Licence-protected modules — not included in this repository |
 
 
 ## Building the Vivado Project
@@ -99,7 +101,7 @@ Path 2 is the live effects chain. Audio flows left to right through the modules 
 
 ![Path 2](./docs/path2.svg)
 
-Controls:
+**Controls:**
  
 | Control | Source |
 |---|---|
@@ -134,7 +136,7 @@ Controls:
 
 ### Shared Infrastructure
 
-##### 7SEGMENT CTRL
+##### 7SEGMENT DRIVER
 > Multiplexes the four `MM:SS` countdown digits onto the Basys 3 7-segment display by rapidly cycling the active-low anode select (`AN[3:0]`) and segment cathode (`SEG[6:0]`) outputs fast enough for persistence of vision.
 
 ---
@@ -159,13 +161,11 @@ Controls:
 
 ## Known Bugs
 
-List any incomplete features, timing closure issues, or edge-case glitches here. (e.g., "Occasional UART packet drops at baud rates higher than 2M," or "Minor popping noise during aggressive volume saturation").
+- Resetting the board during runtime causes the Pmod JSTK2 to become unresponsive.
 
 ## Acknowledgments
 
 We would like to thank the professors and teaching assistants of the **Digital Electronic System Design** course at Politecnico di Milano for designing this project track and for their guidance throughout the semester.
-
----
  
 
 
