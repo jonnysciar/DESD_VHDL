@@ -33,6 +33,13 @@ Both paths share the same I2S audio input. Path 1 drives the 7-segment display (
 
 ![System Architecture](./docs/top.svg)
 
+**Block diagram legend:**
+ 
+| Color | Meaning |
+|:---:|---|
+| <span style="display:inline-block; width:24px; height:24px; background-color: #FDBA74; vertical-align: middle;"></span> | Custom modules available in this repository |
+| <span style="display:inline-block; width:24px; height:24px; background-color: #DFEBF8; vertical-align: middle;"></span> | IP cores provided by Vivado (no source needed) |
+| <span style="display:inline-block; width:24px; height:24px; background-color: #FEE2E2; vertical-align: middle;"></span> | Licence-protected modules — not included in this repository |
 
 
 ## Building the Vivado Project
@@ -41,7 +48,7 @@ Both paths share the same I2S audio input. Path 1 drives the 7-segment display (
 
 - Vivado 2020.2
 - Digilent board files installed (for Basys3 support)
-- A Basys3 board connected via USB-JTAG
+- A Basys3 board, with a Pmod JSTK2 and Pmod I2S2 peripherals
 
 ### Steps
 
@@ -58,8 +65,9 @@ Both paths share the same I2S audio input. Path 1 drives the 7-segment display (
    ```
 
 4. **Program the FPGA** \
-   Enter *Vivado HW Manager* and program the FPGA with the .bit file generated at: \
-   `<your_repo_path>/build/<PRJ_NAME>.runs/impl_1/<your_bitstream>.bit`
+   Connect the Basys3 board to the PC via the USB-JTAG Cable. \
+   Enter *Vivado HW Manager* and program the FPGA with the .bit file generated under the folder: \
+   `<REPO_PATH>/build/<PRJ_NAME>.runs/impl_1/`
 
 ## Module Reference
 
