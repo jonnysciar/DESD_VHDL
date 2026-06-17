@@ -1,8 +1,8 @@
-# AXIngale
+# AXIngale FPGA
 
 <img src="./docs/logo.png" width="300" align="right" />
 
-*A real-time audio effects processor with joystick control on Digilent Basys-3.*
+*A real-time audio effects processor with joystick control on the Digilent Basys-3 FPGA.*
 
 *Course: Digital Electronics Systems Design @ PoliMi* \
 *Group members: [jonnysciar](https://github.com/jonnysciar), [gmnapo](https://github.com/gmnapo), [damianopasquini02](https://github.com/damianopasquini02),* \
