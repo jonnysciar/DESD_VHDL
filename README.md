@@ -1,12 +1,16 @@
-# AXIngale FPGA
+<div align="center">
 
-<img src="./docs/logo.png" width="300" align="right" />
+<img src="./docs/logo.png" width="300"/>
+
+# AXIngale
 
 *A real-time audio effects processor with joystick control on the Digilent Basys-3 FPGA.*
 
 *Course: Digital Electronics Systems Design @ PoliMi* \
 *Group members: [jonnysciar](https://github.com/jonnysciar), [gmnapo](https://github.com/gmnapo), [damianopasquini02](https://github.com/damianopasquini02),* \
 *Academic year: 2025–2026*
+
+</div>
 
 ## Table of Contents
 
@@ -48,7 +52,7 @@ Both paths share the same I2S audio input. Path 1 drives the 7-segment display (
 
 - Vivado 2020.2
 - Digilent board files installed (for Basys-3 support)
-- A Basys-3 board, with a Pmod JSTK2 and Pmod I2S2 peripherals
+- A Basys-3 board, with Pmod JSTK2 and Pmod I2S2 peripherals
 
 ### Steps
 
